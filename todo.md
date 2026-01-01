@@ -168,3 +168,10 @@ PORT=3000
 - [ ] Check production build asset paths
 - [ ] Verify server is serving static files correctly in production
 - [ ] Test production build locally before redeploying
+
+
+## 🤖 AI Model Issue
+
+- [ ] Fix Claude model name - current model "claude-3-5-sonnet-20241022" returns 404
+- [ ] Update to valid model like "claude-3-5-sonnet-20241022" or "claude-3-opus-20240229"
+- [ ] Test AI content generation
