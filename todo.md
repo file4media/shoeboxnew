@@ -275,3 +275,14 @@ PORT=3000
 - [ ] Save checkpoint
 - [ ] Push to GitHub
 - [ ] Verify Railway deployment
+
+
+## 🔧 URGENT: Add Navigation to Newsletters Page
+
+**Issue**: Users stuck on /newsletters page with no way to navigate home or logout
+
+**Goal**: Add simple header with Home button and Logout button
+
+- [x] Add inline header to Newsletters page (no separate component to avoid complexity)
+- [x] Test locally that page loads without errors
+- [ ] Save checkpoint and push to GitHub
