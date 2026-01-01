@@ -173,3 +173,9 @@
 - [x] Test prebuild script locally
 - [x] Deploy and verify fresh build
 - [ ] Verify site loads correctly with matching asset hashes
+
+## Replace Bash Script with Node.js Build Script
+- [x] Create Node.js build script with proper error handling
+- [x] Update package.json to use Node script
+- [x] Test locally - works perfectly
+- [ ] Deploy to Railway and verify output
