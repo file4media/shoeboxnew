@@ -159,4 +159,4 @@
 - [x] Create dedicated build.sh script for reliable builds
 - [x] Update package.json to use build script
 - [x] Test build script locally
-- [ ] Push to GitHub and redeploy on Railway
+- [x] Push to GitHub and redeploy on Railway
