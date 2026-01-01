@@ -167,3 +167,9 @@
 - [x] Add error handling and verbose output
 - [x] Test build script with verbose output locally
 - [x] Deploy and verify Vite output appears in Railway logs
+
+## Railway Build Caching Issue
+- [x] Add prebuild step to clear dist folder
+- [x] Test prebuild script locally
+- [ ] Deploy and verify fresh build
+- [ ] Verify site loads correctly with matching asset hashes
