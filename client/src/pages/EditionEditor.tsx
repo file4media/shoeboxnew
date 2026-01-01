@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { SortableArticleItem } from "@/components/SortableArticleItem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +13,9 @@ import { ArrowLeft, Loader2, Sparkles, Send, Eye, Plus, Trash2, GripVertical, Im
 import { useState, useEffect } from "react";
 import { useLocation, useRoute } from "wouter";
 import { toast } from "sonner";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Article = {
   id: number;
@@ -39,6 +43,7 @@ export default function EditionEditor() {
   const [subject, setSubject] = useState("");
   const [introText, setIntroText] = useState("");
   const [scheduledFor, setScheduledFor] = useState("");
+  const [templateStyle, setTemplateStyle] = useState<"morning-brew" | "minimalist" | "bold" | "magazine">("morning-brew");
   
   // Article editor state
   const [isArticleDialogOpen, setIsArticleDialogOpen] = useState(false);
@@ -110,6 +115,15 @@ export default function EditionEditor() {
     },
   });
 
+  const reorderArticleMutation = trpc.articles.reorder.useMutation({
+    onSuccess: () => {
+      refetchArticles();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const generateContentMutation = trpc.ai.generateContent.useMutation({
     onSuccess: (data) => {
       setArticleContent(data.content);
@@ -146,10 +160,36 @@ export default function EditionEditor() {
     },
   });
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = articles.findIndex((a) => a.id === active.id);
+      const newIndex = articles.findIndex((a) => a.id === over.id);
+
+      const reorderedArticles = arrayMove(articles, oldIndex, newIndex);
+      const articleIds = reorderedArticles.map((a) => a.id);
+
+      reorderArticleMutation.mutate({
+        editionId,
+        articleIds,
+      });
+    }
+  };
+
   useEffect(() => {
     if (edition) {
       setSubject(edition.subject);
       setIntroText(edition.introText || "");
+      setTemplateStyle(edition.templateStyle || "morning-brew");
       if (edition.scheduledFor) {
         const date = new Date(edition.scheduledFor);
         setScheduledFor(date.toISOString().slice(0, 16));
@@ -162,6 +202,7 @@ export default function EditionEditor() {
       id: editionId,
       subject,
       introText,
+      templateStyle,
       scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
     });
   };
@@ -323,6 +364,20 @@ export default function EditionEditor() {
               />
             </div>
             <div>
+              <Label htmlFor="templateStyle">Email Template Style</Label>
+              <Select value={templateStyle} onValueChange={(value: any) => setTemplateStyle(value)}>
+                <SelectTrigger id="templateStyle">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="morning-brew">Morning Brew (Card-based, Blue header)</SelectItem>
+                  <SelectItem value="minimalist">Minimalist (Clean, Simple, Serif)</SelectItem>
+                  <SelectItem value="bold">Bold (Vibrant, Eye-catching)</SelectItem>
+                  <SelectItem value="magazine">Magazine (Editorial, Featured article)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="scheduledFor">Schedule Send (optional)</Label>
               <Input
                 id="scheduledFor"
@@ -351,54 +406,27 @@ export default function EditionEditor() {
                 <p>No articles yet. Click "Add Article" to create your first article card.</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {articles.map((article) => (
-                  <div
-                    key={article.id}
-                    className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 cursor-move">
-                        <GripVertical className="h-5 w-5 text-gray-400" />
-                      </div>
-                      {article.imageUrl && (
-                        <img
-                          src={article.imageUrl}
-                          alt={article.title}
-                          className="w-24 h-24 object-cover rounded"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        {article.category && (
-                          <span className="text-xs font-semibold text-primary uppercase">
-                            {article.category}
-                          </span>
-                        )}
-                        <h3 className="font-semibold text-lg mb-1">{article.title}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {article.content.substring(0, 150)}...
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openArticleDialog(article)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteArticle(article.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={articles.map((a) => a.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {articles.map((article) => (
+                      <SortableArticleItem
+                        key={article.id}
+                        article={article}
+                        onEdit={openArticleDialog}
+                        onDelete={(id: number) => deleteArticleMutation.mutate({ id })}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
           </CardContent>
         </Card>

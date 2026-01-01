@@ -5,7 +5,7 @@ import { generateEmailHtml } from "./emailTemplate";
 
 let resendClient: Resend | null = null;
 
-function getResendClient(): Resend {
+export function getResendClient(): Resend {
   if (!resendClient) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {

@@ -46,6 +46,8 @@ export const appRouter = router({
         replyToEmail: z.string().email().optional(),
         logoUrl: z.string().optional(),
         primaryColor: z.string().optional(),
+        welcomeEmailSubject: z.string().optional(),
+        welcomeEmailContent: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         return db.createNewsletter({
@@ -64,6 +66,9 @@ export const appRouter = router({
         replyToEmail: z.string().email().optional(),
         logoUrl: z.string().optional(),
         primaryColor: z.string().optional(),
+        welcomeEmailSubject: z.string().optional(),
+        welcomeEmailContent: z.string().optional(),
+        sendWelcomeEmail: z.boolean().optional(),
         isActive: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -143,6 +148,13 @@ export const appRouter = router({
         }
 
         await db.subscribeToNewsletter(input.newsletterId, subscriber.id);
+        
+        // Send welcome email
+        const { sendWelcomeEmail } = await import("./welcomeEmail");
+        const host = typeof ctx.req.get === 'function' ? ctx.req.get("host") : "localhost:3000";
+        const baseUrl = `${ctx.req.protocol}://${host}`;
+        await sendWelcomeEmail(newsletter, subscriber.email, subscriber.name || undefined, baseUrl);
+        
         return { success: true, subscriber };
       }),
 
@@ -260,6 +272,7 @@ export const appRouter = router({
         introText: z.string().optional(),
         contentMarkdown: z.string().optional(),
         contentHtml: z.string().optional(),
+        templateStyle: z.enum(["morning-brew", "minimalist", "bold", "magazine"]).optional(),
         status: z.enum(["draft", "scheduled", "sending", "sent", "failed"]).optional(),
         scheduledAt: z.date().optional(),
         scheduledFor: z.date().optional(),
@@ -420,7 +433,7 @@ export const appRouter = router({
         editionId: z.number(),
         category: z.string().optional(),
         title: z.string().min(1),
-        slug: z.string().min(1),
+        slug: z.string().optional(),
         content: z.string().min(1),
         excerpt: z.string().optional(),
         imageUrl: z.string().optional(),
@@ -436,7 +449,9 @@ export const appRouter = router({
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
-        return db.createArticle(input);
+        // Generate slug from title if not provided
+        const slug = input.slug || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        return db.createArticle({ ...input, slug });
       }),
 
     list: protectedProcedure

@@ -32,6 +32,10 @@ export const newsletters = mysqlTable("newsletters", {
   // Branding and customization
   logoUrl: text("logoUrl"),
   primaryColor: varchar("primaryColor", { length: 7 }).default("#3b82f6"),
+  // Welcome email
+  welcomeEmailSubject: varchar("welcomeEmailSubject", { length: 255 }),
+  welcomeEmailContent: text("welcomeEmailContent"),
+  sendWelcomeEmail: boolean("sendWelcomeEmail").default(true).notNull(),
   // Status
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -92,6 +96,8 @@ export const newsletterEditions = mysqlTable("newsletter_editions", {
   // Legacy content fields (kept for backward compatibility)
   contentMarkdown: text("contentMarkdown"),
   contentHtml: text("contentHtml"),
+  // Template style
+  templateStyle: mysqlEnum("templateStyle", ["morning-brew", "minimalist", "bold", "magazine"]).default("morning-brew").notNull(),
   // Publishing
   status: mysqlEnum("status", ["draft", "scheduled", "sending", "sent", "failed"]).default("draft").notNull(),
   scheduledFor: timestamp("scheduledFor"),
@@ -165,3 +171,26 @@ export const articles = mysqlTable("articles", {
 
 export type Article = typeof articles.$inferSelect;
 export type InsertArticle = typeof articles.$inferInsert;
+
+/**
+ * Scheduled jobs table - tracks automated email sends
+ */
+export const scheduledJobs = mysqlTable("scheduled_jobs", {
+  id: int("id").autoincrement().primaryKey(),
+  editionId: int("editionId").notNull(),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  attempts: int("attempts").default(0).notNull(),
+  lastAttemptAt: timestamp("lastAttemptAt"),
+  completedAt: timestamp("completedAt"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  editionIdIdx: index("editionId_idx").on(table.editionId),
+  statusIdx: index("status_idx").on(table.status),
+  scheduledForIdx: index("scheduledFor_idx").on(table.scheduledFor),
+}));
+
+export type ScheduledJob = typeof scheduledJobs.$inferSelect;
+export type InsertScheduledJob = typeof scheduledJobs.$inferInsert;

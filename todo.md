@@ -76,3 +76,36 @@
 - [ ] Add scheduling system for editions (cron job or manual trigger)
 - [x] Design email footer with social links and unsubscribe
 - [x] Test complete article workflow (create, email, view on site)
+
+## Welcome Email System
+- [x] Add welcomeEmailSubject and welcomeEmailContent fields to newsletters table
+- [x] Create welcome email template with newsletter branding
+- [x] Trigger welcome email when subscriber joins a newsletter
+- [x] Add welcome email editor in newsletter settings
+- [x] Test welcome email delivery
+
+## Drag-and-Drop Reordering
+- [x] Install @dnd-kit/core and @dnd-kit/sortable packages
+- [x] Implement drag-and-drop for article cards in EditionEditor
+- [x] Add visual feedback during drag operations
+- [x] Update article order on drop
+- [x] Test drag-and-drop functionality
+
+## Email Template Library
+- [x] Create template system with multiple styles (Morning Brew, Minimalist, Bold, Magazine)
+- [x] Add templateStyle field to newsletter_editions table
+- [x] Build template selector UI in edition editor
+- [x] Implement Minimalist template (clean, simple design)
+- [x] Implement Bold template (vibrant colors, large typography)
+- [x] Implement Magazine template (multi-column, editorial style)
+- [x] Update email generation to use selected template
+- [ ] Add template preview functionality
+
+## Automated Scheduling System
+- [x] Create scheduled_jobs table for tracking scheduled sends
+- [x] Build background job processor for scheduled editions
+- [x] Implement cron-style scheduler that checks for pending sends
+- [x] Add job status tracking (pending, processing, completed, failed)
+- [x] Add retry logic for failed sends
+- [ ] Create admin UI for viewing scheduled jobs
+- [x] Test automated scheduling end-to-end

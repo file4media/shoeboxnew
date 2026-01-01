@@ -28,7 +28,7 @@ export function generateArticleUrl(baseUrl: string, editionId: number, articleSl
 /**
  * Generate Morning Brew-style HTML email template
  */
-export function generateEmailHtml(
+export function generateMorningBrewTemplate(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
@@ -204,4 +204,376 @@ export function generateEmailHtml(
 </body>
 </html>
   `.trim();
+}
+
+/**
+ * Generate Minimalist HTML email template
+ */
+export function generateMinimalistTemplate(
+  newsletter: Newsletter,
+  edition: NewsletterEdition,
+  articles: Article[],
+  trackingPixelUrl: string,
+  baseUrl: string,
+  subscriberId: number
+): string {
+  const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
+
+  const articleCardsHtml = articles
+    .map((article) => {
+      const truncatedContent = truncateToWords(article.content, 100);
+      const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
+      
+      return `
+        <div style="margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid #e5e7eb;">
+          ${article.category ? `<p style="margin: 0 0 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">${article.category}</p>` : ""}
+          <h2 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; line-height: 1.3; color: #111827;">
+            ${article.title}
+          </h2>
+          ${article.imageUrl ? `<img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px; border-radius: 4px;">` : ""}
+          <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.7; color: #374151;">
+            ${truncatedContent}
+          </p>
+          <a href="${articleUrl}" style="display: inline-block; font-size: 14px; font-weight: 500; color: #111827; text-decoration: none; border-bottom: 1px solid #111827;">
+            Read more →
+          </a>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${edition.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Georgia', serif; background-color: #ffffff;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 60px 20px 40px;">
+        <table role="presentation" style="max-width: 600px; width: 100%;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom: 40px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 400; letter-spacing: 2px; color: #111827;">
+                ${newsletter.name}
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Intro Text -->
+          ${edition.introText ? `
+          <tr>
+            <td style="padding-bottom: 48px;">
+              <p style="margin: 0; font-size: 18px; line-height: 1.7; color: #374151; font-style: italic;">
+                ${edition.introText}
+              </p>
+            </td>
+          </tr>
+          ` : ""}
+
+          <!-- Articles -->
+          <tr>
+            <td>
+              ${articleCardsHtml}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top: 48px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 8px; font-size: 12px; color: #9ca3af;">
+                <a href="${unsubscribeUrl}" style="color: #6b7280; text-decoration: none;">Unsubscribe</a>
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                © ${new Date().getFullYear()} ${newsletter.name}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tracking Pixel -->
+  <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" />
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Generate Bold HTML email template
+ */
+export function generateBoldTemplate(
+  newsletter: Newsletter,
+  edition: NewsletterEdition,
+  articles: Article[],
+  trackingPixelUrl: string,
+  baseUrl: string,
+  subscriberId: number
+): string {
+  const primaryColor = newsletter.primaryColor || "#ff6b35";
+  const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
+
+  const articleCardsHtml = articles
+    .map((article) => {
+      const truncatedContent = truncateToWords(article.content, 100);
+      const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
+      
+      return `
+        <div style="margin-bottom: 32px; background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%); border-radius: 16px; overflow: hidden; border: 3px solid ${primaryColor};">
+          ${article.imageUrl ? `<img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 250px; object-fit: cover;">` : ""}
+          <div style="padding: 32px;">
+            ${article.category ? `<span style="display: inline-block; padding: 6px 16px; background-color: ${primaryColor}; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; margin-bottom: 16px;">${article.category}</span>` : ""}
+            <h2 style="margin: 0 0 16px; font-size: 32px; font-weight: 900; line-height: 1.2; color: #111827;">
+              ${article.title}
+            </h2>
+            <p style="margin: 0 0 24px; font-size: 18px; line-height: 1.6; color: #374151;">
+              ${truncatedContent}
+            </p>
+            <a href="${articleUrl}" style="display: inline-block; padding: 14px 32px; background-color: ${primaryColor}; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;">
+              Read Full Story
+            </a>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${edition.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 700px; width: 100%; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 48px 40px; text-align: center; background: linear-gradient(135deg, ${primaryColor} 0%, #ff8c42 100%);">
+              <h1 style="margin: 0; font-size: 48px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 2px;">
+                ${newsletter.name}
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Intro Text -->
+          ${edition.introText ? `
+          <tr>
+            <td style="padding: 40px; background-color: #fef3c7;">
+              <p style="margin: 0; font-size: 20px; line-height: 1.6; color: #92400e; font-weight: 600; text-align: center;">
+                ${edition.introText}
+              </p>
+            </td>
+          </tr>
+          ` : ""}
+
+          <!-- Articles -->
+          <tr>
+            <td style="padding: 40px;">
+              ${articleCardsHtml}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 40px; background-color: #111827; text-align: center;">
+              <p style="margin: 0 0 12px; font-size: 14px; color: #9ca3af;">
+                <a href="${unsubscribeUrl}" style="color: ${primaryColor}; text-decoration: none; font-weight: 600;">Unsubscribe</a>
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">
+                © ${new Date().getFullYear()} ${newsletter.name}. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tracking Pixel -->
+  <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" />
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Generate Magazine HTML email template
+ */
+export function generateMagazineTemplate(
+  newsletter: Newsletter,
+  edition: NewsletterEdition,
+  articles: Article[],
+  trackingPixelUrl: string,
+  baseUrl: string,
+  subscriberId: number
+): string {
+  const primaryColor = newsletter.primaryColor || "#dc2626";
+  const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
+
+  const articleCardsHtml = articles
+    .map((article, index) => {
+      const truncatedContent = truncateToWords(article.content, 80);
+      const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
+      
+      // First article gets featured treatment
+      if (index === 0) {
+        return `
+          <div style="margin-bottom: 40px; border-bottom: 4px solid ${primaryColor}; padding-bottom: 40px;">
+            ${article.imageUrl ? `<img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 400px; object-fit: cover; margin-bottom: 24px;">` : ""}
+            ${article.category ? `<p style="margin: 0 0 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: ${primaryColor};">${article.category}</p>` : ""}
+            <h2 style="margin: 0 0 20px; font-size: 36px; font-weight: 700; line-height: 1.2; color: #111827;">
+              ${article.title}
+            </h2>
+            <p style="margin: 0 0 20px; font-size: 18px; line-height: 1.7; color: #374151;">
+              ${truncatedContent}
+            </p>
+            <a href="${articleUrl}" style="display: inline-block; padding: 12px 28px; background-color: ${primaryColor}; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">
+              Continue Reading
+            </a>
+          </div>
+        `;
+      }
+      
+      // Other articles in two-column layout
+      return `
+        <div style="margin-bottom: 32px;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <tr>
+              ${article.imageUrl ? `
+              <td style="width: 180px; vertical-align: top; padding-right: 20px;">
+                <img src="${article.imageUrl}" alt="${article.title}" style="width: 180px; height: 120px; object-fit: cover;">
+              </td>
+              ` : ""}
+              <td style="vertical-align: top;">
+                ${article.category ? `<p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: ${primaryColor};">${article.category}</p>` : ""}
+                <h3 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; line-height: 1.3; color: #111827;">
+                  ${article.title}
+                </h3>
+                <p style="margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: #6b7280;">
+                  ${truncatedContent}
+                </p>
+                <a href="${articleUrl}" style="font-size: 13px; font-weight: 600; color: ${primaryColor}; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Read More →
+                </a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${edition.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 0;">
+        <table role="presentation" style="max-width: 700px; width: 100%; background-color: #ffffff;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 32px; border-bottom: 4px solid ${primaryColor};">
+              <table role="presentation" style="width: 100%;">
+                <tr>
+                  <td style="vertical-align: middle;">
+                    <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #111827; font-family: 'Georgia', serif;">
+                      ${newsletter.name}
+                    </h1>
+                    <p style="margin: 8px 0 0; font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">
+                      ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Intro Text -->
+          ${edition.introText ? `
+          <tr>
+            <td style="padding: 32px 40px; background-color: #fef2f2; border-left: 4px solid ${primaryColor};">
+              <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #374151; font-style: italic;">
+                ${edition.introText}
+              </p>
+            </td>
+          </tr>
+          ` : ""}
+
+          <!-- Articles -->
+          <tr>
+            <td style="padding: 40px;">
+              ${articleCardsHtml}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 40px; background-color: #111827; text-align: center;">
+              <p style="margin: 0 0 8px; font-size: 12px; color: #9ca3af;">
+                <a href="${unsubscribeUrl}" style="color: #d1d5db; text-decoration: none;">Unsubscribe</a>
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #6b7280;">
+                © ${new Date().getFullYear()} ${newsletter.name}. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tracking Pixel -->
+  <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" />
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Main template generator that selects the appropriate template based on style
+ */
+export function generateEmailHtml(
+  newsletter: Newsletter,
+  edition: NewsletterEdition,
+  articles: Article[],
+  trackingPixelUrl: string,
+  baseUrl: string,
+  subscriberId: number
+): string {
+  const templateStyle = edition.templateStyle || "morning-brew";
+
+  switch (templateStyle) {
+    case "minimalist":
+      return generateMinimalistTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+    case "bold":
+      return generateBoldTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+    case "magazine":
+      return generateMagazineTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+    case "morning-brew":
+    default:
+      return generateMorningBrewTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+  }
 }
