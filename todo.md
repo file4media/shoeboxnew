@@ -184,9 +184,9 @@ PORT=3000
 - [x] Add orderIndex field for drag-and-drop positioning
 - [x] Create backend API for section CRUD operations
 - [x] Add AI generation endpoint for individual sections
-- [ ] Build section editor UI with drag-and-drop (using @dnd-kit)
-- [ ] Add section templates (pre-designed layouts)
-- [ ] Update email template to render sections dynamically
+- [x] Build section editor UI with drag-and-drop (using @dnd-kit)
+- [x] Add section templates (pre-designed layouts)
+- [x] Update email template to render sections dynamically
 - [ ] Test section reordering
 - [ ] Test AI generation per section
 - [ ] Test email rendering with multiple sections

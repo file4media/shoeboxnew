@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { SortableArticleItem } from "@/components/SortableArticleItem";
+import { SectionEditor } from "@/components/SectionEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -389,7 +390,20 @@ export default function EditionEditor() {
           </CardContent>
         </Card>
 
-        {/* Articles Section */}
+        {/* Sections (New Modular System) */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Newsletter Sections</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Build your newsletter with modular sections. Drag to reorder, generate with AI, or add manually.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <SectionEditor editionId={editionId} />
+          </CardContent>
+        </Card>
+
+        {/* Articles Section (Legacy) */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">

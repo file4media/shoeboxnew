@@ -1,4 +1,5 @@
-import type { Newsletter, NewsletterEdition, Article } from "../drizzle/schema";
+import { Newsletter, NewsletterEdition, Article, NewsletterSection } from "../drizzle/schema";
+import { renderSections } from "./sectionRenderer";
 
 /**
  * Truncate content to approximately N words
@@ -32,6 +33,7 @@ export function generateMorningBrewTemplate(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
+  sections: NewsletterSection[],
   trackingPixelUrl: string,
   baseUrl: string,
   subscriberId: number
@@ -46,8 +48,10 @@ export function generateMorningBrewTemplate(
 
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  // Generate article cards HTML
-  const articleCardsHtml = articles
+  // Render sections if available, otherwise fall back to articles
+  const contentHtml = sections.length > 0 
+    ? renderSections(sections, primaryColor)
+    : articles
     .map((article) => {
       const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
       const truncatedContent = truncateToWords(article.content, 150); // ~600 words max
@@ -149,10 +153,10 @@ export function generateMorningBrewTemplate(
           <!-- Spacer -->
           <tr><td style="height: 24px;"></td></tr>
 
-          <!-- Article Cards -->
+          <!-- Content (Sections or Articles) -->
           <tr>
             <td>
-              ${articleCardsHtml}
+              ${contentHtml}
             </td>
           </tr>
 
@@ -213,6 +217,7 @@ export function generateMinimalistTemplate(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
+  sections: NewsletterSection[],
   trackingPixelUrl: string,
   baseUrl: string,
   subscriberId: number
@@ -314,6 +319,7 @@ export function generateBoldTemplate(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
+  sections: NewsletterSection[],
   trackingPixelUrl: string,
   baseUrl: string,
   subscriberId: number
@@ -418,6 +424,7 @@ export function generateMagazineTemplate(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
+  sections: NewsletterSection[],
   trackingPixelUrl: string,
   baseUrl: string,
   subscriberId: number
@@ -559,6 +566,7 @@ export function generateEmailHtml(
   newsletter: Newsletter,
   edition: NewsletterEdition,
   articles: Article[],
+  sections: NewsletterSection[],
   trackingPixelUrl: string,
   baseUrl: string,
   subscriberId: number
@@ -567,13 +575,13 @@ export function generateEmailHtml(
 
   switch (templateStyle) {
     case "minimalist":
-      return generateMinimalistTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+      return generateMinimalistTemplate(newsletter, edition, articles, sections, trackingPixelUrl, baseUrl, subscriberId);
     case "bold":
-      return generateBoldTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+      return generateBoldTemplate(newsletter, edition, articles, sections, trackingPixelUrl, baseUrl, subscriberId);
     case "magazine":
-      return generateMagazineTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+      return generateMagazineTemplate(newsletter, edition, articles, sections, trackingPixelUrl, baseUrl, subscriberId);
     case "morning-brew":
     default:
-      return generateMorningBrewTemplate(newsletter, edition, articles, trackingPixelUrl, baseUrl, subscriberId);
+      return generateMorningBrewTemplate(newsletter, edition, articles, sections, trackingPixelUrl, baseUrl, subscriberId);
   }
 }

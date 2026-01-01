@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
 import * as db from "./db";
+import { getSectionsByEdition } from "./sectionsDb";
 import { generateEmailHtml } from "./emailTemplate";
 
 let resendClient: Resend | null = null;
@@ -90,12 +91,16 @@ export async function sendNewsletterEdition(editionId: number, baseUrl: string) 
 
         // Get articles for this edition
         const articles = await db.getArticlesByEditionId(edition.id);
+        
+        // Get sections for this edition
+        const sections = await getSectionsByEdition(edition.id);
 
         // Generate HTML email with card-based template
         const htmlWithTracking = generateEmailHtml(
           newsletter,
           edition,
           articles,
+          sections,
           trackingPixelUrl,
           baseUrl,
           subscriber.subscriber.id
@@ -160,12 +165,16 @@ export async function sendTestEmail(
   
   // Get articles for this edition
   const articles = await db.getArticlesByEditionId(edition.id);
+  
+  // Get sections for this edition
+  const sections = await getSectionsByEdition(edition.id);
 
   // Generate HTML email with card-based template (use dummy subscriber ID for test)
   const htmlWithTracking = generateEmailHtml(
     newsletter,
     edition,
     articles,
+    sections,
     trackingPixelUrl,
     baseUrl,
     0 // dummy subscriber ID for test emails
