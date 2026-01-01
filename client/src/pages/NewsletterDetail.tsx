@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { AppHeader } from "@/components/AppHeader";
 
 export default function NewsletterDetail() {
   const [, params] = useRoute("/newsletters/:id");
@@ -86,7 +85,14 @@ export default function NewsletterDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <header className="border-b">
+        <div className="container py-4">
+          <Button variant="ghost" onClick={() => setLocation("/newsletters")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Newsletters
+          </Button>
+        </div>
+      </header>
 
       <main className="container py-8">
         <div className="mb-8">

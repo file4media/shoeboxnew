@@ -7,11 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { Mail, Plus, Users, BarChart3, Loader2, FileText, UserCircle, Newspaper } from "lucide-react";
+import { Mail, Plus, Settings, Users, BarChart3, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { AppHeader } from "@/components/AppHeader";
 
 export default function Newsletters() {
   const { user, loading: authLoading } = useAuth();
@@ -24,13 +23,9 @@ export default function Newsletters() {
     fromEmail: "",
   });
 
-  const { data: newsletters, isLoading: newslettersLoading, refetch } = trpc.newsletters.list.useQuery(undefined, {
+  const { data: newsletters, isLoading, refetch } = trpc.newsletters.list.useQuery(undefined, {
     enabled: !!user,
   });
-
-  // Simple stats - will be 0 until we implement proper aggregation
-  const totalArticles = 0;
-  const totalAuthors = 0;
 
   const createMutation = trpc.newsletters.create.useMutation({
     onSuccess: () => {
@@ -65,68 +60,27 @@ export default function Newsletters() {
     createMutation.mutate(formData);
   };
 
-  const isLoading = newslettersLoading;
-
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <header className="border-b">
+        <div className="container py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Mail className="h-6 w-6 text-primary" />
+              <span className="text-xl font-bold">Newsletter Platform</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <main className="container py-8">
-        {/* Dashboard Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user.name || user.email}! Here's an overview of your content.
-          </p>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Newsletters</CardTitle>
-              <Newspaper className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{newsletters?.length || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Active newsletter campaigns
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Articles</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalArticles}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Articles in your library
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Authors</CardTitle>
-              <UserCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalAuthors}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Writing personas created
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Newsletters Section */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-bold">My Newsletters</h2>
-            <p className="text-muted-foreground text-sm">Manage your newsletter campaigns</p>
+            <h1 className="text-3xl font-bold">My Newsletters</h1>
+            <p className="text-muted-foreground">Manage your newsletter campaigns</p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
