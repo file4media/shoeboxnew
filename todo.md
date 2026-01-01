@@ -179,3 +179,10 @@
 - [x] Update package.json to use Node script
 - [x] Test locally - works perfectly
 - [x] Deploy to Railway and verify output
+
+## File-Based Build Diagnostics
+- [x] Modify check-build.mjs to write diagnostic info to file
+- [x] Update server startup to read and log diagnostic file
+- [x] Test locally - works perfectly
+- [ ] Deploy and check deployment logs for diagnostic info
+- [ ] Identify root cause of asset mismatch

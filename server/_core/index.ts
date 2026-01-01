@@ -28,6 +28,24 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Read and log build diagnostic info
+  try {
+    const { readFileSync } = await import("fs");
+    const { resolve } = await import("path");
+    const diagnosticFile = resolve(process.cwd(), 'dist/build-diagnostic.json');
+    const diagnostic = JSON.parse(readFileSync(diagnosticFile, 'utf-8'));
+    console.log('\n===========================================');
+    console.log('📊 BUILD DIAGNOSTIC INFO');
+    console.log('===========================================');
+    console.log('Build timestamp:', diagnostic.timestamp);
+    console.log('Assets in dist/public/assets:', diagnostic.assetFiles);
+    console.log('index.html JS reference:', diagnostic.indexHtmlReferences?.js);
+    console.log('index.html CSS reference:', diagnostic.indexHtmlReferences?.css);
+    console.log('===========================================\n');
+  } catch (error) {
+    console.log('[Server] No build diagnostic file found (this is normal for dev mode)');
+  }
+  
   // Run database migrations automatically on startup
   try {
     const { runAutoMigration } = await import("./autoMigrate");

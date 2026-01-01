@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 console.log('\n========================================');
@@ -29,8 +29,9 @@ if (existsSync(assetsDir)) {
 }
 
 console.log('\nChecking index.html content...');
+let html = '';
 if (existsSync(indexHtml)) {
-  const html = readFileSync(indexHtml, 'utf-8');
+  html = readFileSync(indexHtml, 'utf-8');
   const scriptMatch = html.match(/<script[^>]*src="([^"]+)"/);
   const cssMatch = html.match(/<link[^>]*href="([^"]+\.css)"/);
   
@@ -45,4 +46,23 @@ if (existsSync(indexHtml)) {
   console.log('❌ index.html does NOT exist');
 }
 
+console.log('\n========================================\n');
+
+// Write diagnostic info to file for server to read
+const diagnosticData = {
+  timestamp: new Date().toISOString(),
+  distPublicExists: existsSync(distPublic),
+  publicFiles: existsSync(distPublic) ? readdirSync(distPublic) : [],
+  assetsExists: existsSync(assetsDir),
+  assetFiles: existsSync(assetsDir) ? readdirSync(assetsDir) : [],
+  indexHtmlExists: existsSync(indexHtml),
+  indexHtmlReferences: existsSync(indexHtml) ? {
+    js: html.match(/<script[^>]*src="([^"]+)"/)?.[1],
+    css: html.match(/<link[^>]*href="([^"]+\.css)"/)?.[1]
+  } : null
+};
+
+const diagnosticFile = resolve(process.cwd(), 'dist/build-diagnostic.json');
+writeFileSync(diagnosticFile, JSON.stringify(diagnosticData, null, 2));
+console.log(`✅ Diagnostic info written to ${diagnosticFile}`);
 console.log('\n========================================\n');
