@@ -1,4 +1,4 @@
-import { invokeLLM } from "./_core/llm";
+import { callClaude } from "./claudeAPI";
 
 export interface ContentGenerationOptions {
   topic: string;
@@ -58,15 +58,15 @@ CONTENT:
 [Your article content in markdown]`;
 
   try {
-    const response = await invokeLLM({
-      messages: [
-        { role: "system", content: systemPrompt },
+    const generatedText = await callClaude(
+      [
         { role: "user", content: userPrompt },
       ],
-    });
-
-    const messageContent = response.choices[0]?.message?.content;
-    const generatedText = typeof messageContent === 'string' ? messageContent : '';
+      {
+        system: systemPrompt,
+        maxTokens: 4096,
+      }
+    );
 
     // Parse the response to extract title and content
     const titleMatch = generatedText.match(/TITLE:\s*(.+?)(?:\n|$)/i);
@@ -100,15 +100,16 @@ ${instructions}
 Please provide the improved version in markdown format.`;
 
   try {
-    const response = await invokeLLM({
-      messages: [
-        { role: "system", content: systemPrompt },
+    const improvedContent = await callClaude(
+      [
         { role: "user", content: userPrompt },
       ],
-    });
-
-    const improvedContent = response.choices[0]?.message?.content;
-    return typeof improvedContent === 'string' ? improvedContent : originalContent;
+      {
+        system: systemPrompt,
+        maxTokens: 4096,
+      }
+    );
+    return improvedContent;
   } catch (error) {
     console.error("Error improving content:", error);
     throw new Error("Failed to improve content");
@@ -132,15 +133,15 @@ ${content.substring(0, 500)}...
 Provide exactly 5 subject lines, one per line, without numbering or bullets.`;
 
   try {
-    const response = await invokeLLM({
-      messages: [
-        { role: "system", content: systemPrompt },
+    const generatedText = await callClaude(
+      [
         { role: "user", content: userPrompt },
       ],
-    });
-
-    const messageContent = response.choices[0]?.message?.content;
-    const generatedText = typeof messageContent === 'string' ? messageContent : '';
+      {
+        system: systemPrompt,
+        maxTokens: 4096,
+      }
+    );
     const lines = generatedText.split("\n");
     const subjectLines = lines
       .map((line: string) => line.trim())

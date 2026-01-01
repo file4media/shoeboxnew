@@ -109,3 +109,16 @@
 - [x] Add retry logic for failed sends
 - [ ] Create admin UI for viewing scheduled jobs
 - [x] Test automated scheduling end-to-end
+
+## Remove Manus Dependencies (Make Standalone)
+- [x] Replace Manus OAuth with email/password authentication
+- [x] Add user registration and login endpoints
+- [x] Update frontend to use new auth system
+- [x] Replace Manus LLM with direct Anthropic Claude API
+- [x] Install @anthropic-ai/sdk package
+- [x] Update AI content generation to use Claude API directly
+- [x] Remove all Manus environment variables
+- [x] Update env configuration for standalone deployment
+- [x] Test authentication flow
+- [x] Test AI content generation with Claude API
+- [ ] Push updated code to GitHub

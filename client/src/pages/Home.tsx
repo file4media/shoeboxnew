@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getLoginUrl } from "@/const";
+
 import { Mail, Sparkles, BarChart3, Users, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -30,8 +30,8 @@ export default function Home() {
             <Mail className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold">Newsletter Platform</span>
           </div>
-          <Button asChild>
-            <a href={getLoginUrl()}>Sign In</a>
+          <Button onClick={() => setLocation("/login")}>
+            Sign In
           </Button>
         </div>
       </header>
@@ -50,10 +50,8 @@ export default function Home() {
           </div>
 
           <div className="flex gap-4 justify-center">
-            <Button size="lg" asChild>
-              <a href={getLoginUrl()}>
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+            <Button size="lg" onClick={() => setLocation("/login")}>
+              Get Started <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
