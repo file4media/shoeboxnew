@@ -285,4 +285,15 @@ PORT=3000
 
 - [x] Add inline header to Newsletters page (no separate component to avoid complexity)
 - [x] Test locally that page loads without errors
-- [ ] Save checkpoint and push to GitHub
+- [x] Save checkpoint and push to GitHub
+
+
+## 🔧 URGENT: Fix Home Button
+
+**Issue**: Home button doesn't go to home page - redirects back to /newsletters
+
+**Root Cause**: Home.tsx has auto-redirect logic for logged-in users
+
+- [x] Remove auto-redirect from Home.tsx
+- [x] Test that Home button shows landing page
+- [ ] Push fix to GitHub

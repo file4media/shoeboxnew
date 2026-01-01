@@ -17,10 +17,7 @@ export default function Home() {
     );
   }
 
-  if (user) {
-    setLocation("/newsletters");
-    return null;
-  }
+  // Don't auto-redirect - let users see the landing page
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -30,9 +27,15 @@ export default function Home() {
             <Mail className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold">Newsletter Platform</span>
           </div>
-          <Button onClick={() => setLocation("/login")}>
-            Sign In
-          </Button>
+          {user ? (
+            <Button onClick={() => setLocation("/newsletters")}>
+              Go to Dashboard
+            </Button>
+          ) : (
+            <Button onClick={() => setLocation("/login")}>
+              Sign In
+            </Button>
+          )}
         </div>
       </header>
 
@@ -50,8 +53,8 @@ export default function Home() {
           </div>
 
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => setLocation("/login")}>
-              Get Started <ArrowRight className="ml-2 h-4 w-4" />
+            <Button size="lg" onClick={() => setLocation(user ? "/newsletters" : "/login")}>
+              {user ? "Go to Dashboard" : "Get Started"} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
