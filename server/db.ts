@@ -230,12 +230,19 @@ export async function getEditionById(id: number): Promise<NewsletterEdition | nu
   return result[0] || null;
 }
 
-export async function createEdition(edition: InsertNewsletterEdition): Promise<number> {
+export async function createEdition(edition: InsertNewsletterEdition): Promise<NewsletterEdition> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
   const result = await db.insert(newsletterEditions).values(edition);
-  return Number(result[0].insertId);
+  const insertedId = Number(result[0].insertId);
+  
+  const created = await getEditionById(insertedId);
+  if (!created) {
+    throw new Error("Failed to create edition");
+  }
+  
+  return created;
 }
 
 export async function updateEdition(id: number, updates: Partial<InsertNewsletterEdition>): Promise<void> {

@@ -190,3 +190,11 @@ PORT=3000
 - [ ] Test section reordering
 - [ ] Test AI generation per section
 - [ ] Test email rendering with multiple sections
+
+
+## 🐛 BUG: Edition Creation Redirect
+
+- [x] Fix edition creation redirect showing `/editions/undefined` instead of actual edition ID
+- [x] Edition saves correctly but redirect URL is broken
+- [x] Check edition creation mutation and router.push logic
+- [x] Changed createEdition to return full edition object instead of just ID
