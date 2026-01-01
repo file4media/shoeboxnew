@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { CreateArticleDialog } from "@/components/CreateArticleDialog";
 import { GenerateArticleDialog } from "@/components/GenerateArticleDialog";
 import { EditArticleDialog } from "@/components/EditArticleDialog";
+import { AppHeader } from "@/components/AppHeader";
 
 export default function Articles() {
   const { newsletterId } = useParams<{ newsletterId: string }>();
@@ -52,8 +53,10 @@ export default function Articles() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
+    <>
+      <AppHeader />
+      <div className="container mx-auto py-8">
+        <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold">Article Library</h1>
@@ -195,6 +198,7 @@ export default function Articles() {
           }}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

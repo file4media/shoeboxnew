@@ -275,3 +275,15 @@ PORT=3000
 - [ ] Save checkpoint
 - [ ] Push to GitHub
 - [ ] Verify Railway deployment
+
+
+## 🧭 NEW: Navigation & Dashboard Improvements
+
+**Goal**: Add persistent navigation and comprehensive dashboard
+
+- [x] Create persistent header component with home button
+- [x] Create Dashboard page showing overview of all content (newsletters, articles, authors)
+- [x] Update App.tsx routing to include dashboard
+- [x] Add AppHeader to key pages (Newsletters, NewsletterDetail, Articles)
+- [x] Test navigation flow between all pages
+- [ ] Save checkpoint and push to GitHub

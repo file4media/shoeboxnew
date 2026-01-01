@@ -17,10 +17,7 @@ export default function Home() {
     );
   }
 
-  if (user) {
-    setLocation("/newsletters");
-    return null;
-  }
+  // Allow logged-in users to see the landing page too
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -30,9 +27,17 @@ export default function Home() {
             <Mail className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold">Newsletter Platform</span>
           </div>
-          <Button onClick={() => setLocation("/login")}>
-            Sign In
-          </Button>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <Button onClick={() => setLocation("/newsletters")}>
+                Go to Dashboard
+              </Button>
+            ) : (
+              <Button onClick={() => setLocation("/login")}>
+                Sign In
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
