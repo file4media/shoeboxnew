@@ -46,6 +46,30 @@ if (existsSync(indexHtml)) {
   console.log('❌ index.html does NOT exist');
 }
 
+// Check actual content of generated JS file
+console.log('\nChecking generated JS file content...');
+if (existsSync(assetsDir)) {
+  const assets = readdirSync(assetsDir);
+  const jsFile = assets.find(f => f.endsWith('.js'));
+  if (jsFile) {
+    const jsPath = resolve(assetsDir, jsFile);
+    const jsContent = readFileSync(jsPath, 'utf-8');
+    const first200 = jsContent.substring(0, 200);
+    console.log(`✅ JS file: ${jsFile}`);
+    console.log(`   Size: ${jsContent.length} bytes`);
+    console.log(`   First 200 chars: ${first200}`);
+    
+    // Check if it looks like compiled code or source
+    if (jsContent.includes('import React') || jsContent.includes('from "react"')) {
+      console.log('   ⚠️  WARNING: File contains React imports - looks like SOURCE CODE!');
+    } else if (first200.includes('function') && first200.length < 100) {
+      console.log('   ⚠️  WARNING: File looks like unminified source!');
+    } else {
+      console.log('   ✅ File appears to be compiled/minified');
+    }
+  }
+}
+
 console.log('\n========================================\n');
 
 // Write diagnostic info to file for server to read
