@@ -159,3 +159,12 @@ PORT=3000
 **Remaining**: Debug tRPC communication, test all features, deploy to Railway
 
 **Estimated time to completion**: 2-3 hours
+
+
+## 🚨 URGENT: Production Deployment Issue
+
+- [ ] Fix "Invalid URL" errors on Railway deployment (shoeboxnews.com)
+- [ ] Assets not loading: index-DMs19E1a.js returning TypeError: Invalid URL
+- [ ] Check production build asset paths
+- [ ] Verify server is serving static files correctly in production
+- [ ] Test production build locally before redeploying

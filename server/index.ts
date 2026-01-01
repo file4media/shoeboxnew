@@ -27,16 +27,7 @@ import("./autoMigrate").then(({ autoMigrate }) => {
   autoMigrate().catch(console.error);
 });
 
-// tRPC API endpoint
-app.use(
-  "/api/trpc",
-  createExpressMiddleware({
-    router: appRouter,
-    createContext,
-  })
-);
-
-// Tracking pixel endpoint
+// Tracking pixel endpoint (before other routes)
 app.get("/api/track/:token", async (req, res) => {
   try {
     const { recordEmailOpen } = await import("./db");
@@ -61,6 +52,15 @@ app.get("/api/track/:token", async (req, res) => {
   }
 });
 
+// tRPC API endpoint
+app.use(
+  "/api/trpc",
+  createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
 // Start server
 async function startServer() {
   // Development: Integrate Vite middleware
@@ -78,13 +78,24 @@ async function startServer() {
 
   // Production: Serve static files
   if (!isDev) {
-    const distPath = path.join(process.cwd(), "dist", "public");
+    // In production, __dirname is dist/ so public files are in ./public
+    const distPath = path.join(__dirname, "public");
     console.log("[Server] Serving static files from:", distPath);
-    app.use(express.static(distPath));
+    console.log("[Server] __dirname:", __dirname);
+    console.log("[Server] process.cwd():", process.cwd());
     
-    // Serve index.html for all other routes (SPA)
+    // Serve static files with proper caching
+    app.use(express.static(distPath, {
+      maxAge: "1y",
+      etag: true,
+      lastModified: true,
+    }));
+    
+    // Serve index.html for all other routes (SPA fallback)
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      const indexPath = path.join(distPath, "index.html");
+      console.log("[Server] Serving index.html from:", indexPath);
+      res.sendFile(indexPath);
     });
   }
 
