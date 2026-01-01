@@ -145,4 +145,4 @@
 - [x] Implement auto-migration function that runs on server startup
 - [x] Add migration to server initialization in server/_core/index.ts
 - [x] Test auto-migration locally
-- [ ] Push to GitHub and redeploy on Railway
+- [x] Push to GitHub and redeploy on Railway
