@@ -138,4 +138,5 @@
 ## Railway Database Migration
 - [x] Create standalone migration script for Railway deployment
 - [x] Document how to run migrations on Railway
+- [x] Push migration script to GitHub
 - [ ] Test database setup on Railway
