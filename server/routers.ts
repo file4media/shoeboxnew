@@ -597,6 +597,7 @@ export const appRouter = router({
         category: z.string().optional(),
         tone: z.enum(["professional", "casual", "humorous", "serious"]).optional(),
         authorId: z.number().optional(),
+        allowEmojis: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { createArticle } = await import("./articleLibraryDb");
@@ -627,6 +628,7 @@ export const appRouter = router({
           topic: input.topic,
           category: input.category,
           tone: input.tone || "professional",
+          allowEmojis: input.allowEmojis || false,
           authorStyle,
         });
 

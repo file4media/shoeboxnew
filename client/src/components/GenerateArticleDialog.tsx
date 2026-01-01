@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,7 @@ export function GenerateArticleDialog({
   const [category, setCategory] = useState("");
   const [tone, setTone] = useState<"professional" | "casual" | "humorous" | "serious">("professional");
   const [authorId, setAuthorId] = useState<number | undefined>(undefined);
+  const [allowEmojis, setAllowEmojis] = useState(false);
 
   const { data: authors = [] } = trpc.authors.list.useQuery(
     { newsletterId },
@@ -60,6 +62,7 @@ export function GenerateArticleDialog({
     setCategory("");
     setTone("professional");
     setAuthorId(undefined);
+    setAllowEmojis(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,6 +78,7 @@ export function GenerateArticleDialog({
       category: category.trim() || undefined,
       tone,
       authorId,
+      allowEmojis,
     });
   };
 
@@ -146,6 +150,17 @@ export function GenerateArticleDialog({
                 <SelectItem value="serious">Serious</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="allowEmojis"
+              checked={allowEmojis}
+              onCheckedChange={(checked) => setAllowEmojis(checked as boolean)}
+            />
+            <Label htmlFor="allowEmojis" className="text-sm font-normal cursor-pointer">
+              Allow emojis in generated content
+            </Label>
           </div>
 
           <DialogFooter>

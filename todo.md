@@ -305,5 +305,18 @@ PORT=3000
 
 - [x] Find where article lengths are defined
 - [x] Reduce word counts by 50%
+- [x] Test article generation
+- [x] Push to GitHub
+
+
+## ✍️ Update AI Writing Style
+
+**Requirements**:
+- Never use em dashes (—) in generated content
+- Add checkbox to allow emojis (off by default)
+
+- [x] Update AI prompt to ban em dashes
+- [x] Add emoji checkbox to GenerateArticleDialog
+- [x] Pass emoji preference to AI generation
 - [ ] Test article generation
 - [ ] Push to GitHub

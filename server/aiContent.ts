@@ -7,6 +7,7 @@ export interface ContentGenerationOptions {
   includeIntro?: boolean;
   includeConclusion?: boolean;
   additionalContext?: string;
+  allowEmojis?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ export async function generateNewsletterContent(
     includeIntro = true,
     includeConclusion = true,
     additionalContext = "",
+    allowEmojis = false,
   } = options;
 
   const lengthGuidance = {
@@ -40,6 +42,8 @@ Writing guidelines:
 - Include relevant examples and insights
 - Make it scannable with bullet points where appropriate
 - End with a clear takeaway or call to action
+- NEVER use em dashes (—). Use regular hyphens (-) or commas instead.
+${allowEmojis ? "- You may use emojis to add personality and visual interest" : "- Do NOT use any emojis"}
 ${includeIntro ? "- Start with an engaging introduction that hooks the reader" : ""}
 ${includeConclusion ? "- End with a compelling conclusion" : ""}`;
 
@@ -163,6 +167,7 @@ export async function generateSingleArticle(options: {
   topic: string;
   category?: string;
   tone?: "professional" | "casual" | "humorous" | "serious";
+  allowEmojis?: boolean;
   authorStyle?: {
     name: string;
     writingStyle: string;
@@ -170,7 +175,7 @@ export async function generateSingleArticle(options: {
     personality?: string;
   };
 }): Promise<{ title: string; content: string; excerpt: string }> {
-  const { topic, category, tone = "professional", authorStyle } = options;
+  const { topic, category, tone = "professional", allowEmojis = false, authorStyle } = options;
 
   // Build system prompt based on whether we have an author style
   let systemPrompt: string;
@@ -189,6 +194,8 @@ Writing guidelines:
 - Include clear headings
 - Make it scannable and engaging
 - Focus on providing value to readers
+- NEVER use em dashes (—). Use regular hyphens (-) or commas instead.
+${allowEmojis ? "- You may use emojis to add personality and visual interest" : "- Do NOT use any emojis"}
 - IMPORTANT: Embody the writing style, tone, and personality traits described above in every sentence`;
   } else {
     systemPrompt = `You are an expert newsletter writer. Create a single, focused article that is engaging and informative.
@@ -199,7 +206,9 @@ Writing guidelines:
 - Use markdown formatting
 - Include clear headings
 - Make it scannable and engaging
-- Focus on providing value to readers`;
+- Focus on providing value to readers
+- NEVER use em dashes (—). Use regular hyphens (-) or commas instead.
+${allowEmojis ? "- You may use emojis to add personality and visual interest" : "- Do NOT use any emojis"}`;
   }
 
   const userPrompt = `Write a newsletter article about: ${topic}
