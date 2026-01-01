@@ -160,3 +160,10 @@
 - [x] Update package.json to use build script
 - [x] Test build script locally
 - [x] Push to GitHub and redeploy on Railway
+
+## Railway Vite Build Not Executing
+- [x] Investigate why Vite command isn't running in build.sh
+- [x] Fix build script to use npx for vite and esbuild
+- [x] Add error handling and verbose output
+- [x] Test build script with verbose output locally
+- [ ] Deploy and verify Vite output appears in Railway logs
