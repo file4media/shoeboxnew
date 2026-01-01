@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { generateEmailHtml } from "./emailTemplate";
 import { publicProcedure, protectedProcedure, router } from "./trpc";
 import * as db from "./db";
 import * as auth from "./auth";
@@ -390,7 +391,6 @@ export const appRouter = router({
     getPreviewHtml: protectedProcedure
       .input(z.object({ editionId: z.number() }))
       .query(async ({ input, ctx }) => {
-        const { renderNewsletterEmail } = await import("./emailTemplate");
         const edition = await db.getEditionById(input.editionId);
         if (!edition) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
@@ -400,16 +400,20 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
         
-        // Get edition articles
+        // Get edition data
         const editionArticles = await db.getEditionArticles(input.editionId);
+        const sections = await db.getEditionSections(input.editionId);
         
-        // Render email HTML
-        const html = renderNewsletterEmail({
+        // Render email HTML for preview (use dummy values for tracking)
+        const html = generateEmailHtml(
           newsletter,
           edition,
-          articles: editionArticles,
-          unsubscribeUrl: "#",
-        });
+          editionArticles,
+          sections,
+          "", // No tracking pixel for preview
+          "https://example.com", // Dummy base URL
+          0 // Dummy subscriber ID
+        );
         
         return html;
       }),

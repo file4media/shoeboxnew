@@ -331,5 +331,26 @@ PORT=3000
 - [x] Add excerpt/preview to ArticleSelector component
 - [x] Add email preview button to newsletter edition page
 - [x] Create email preview modal/dialog
-- [ ] Test both preview features
-- [ ] Push to GitHub
+- [x] Test both preview features
+- [x] Push to GitHub
+
+
+## 🔧 FIX: Email Preview Showing Blank
+
+**Issue**: Email preview modal opens but shows blank white content
+
+- [x] Check if getPreviewHtml query is failing
+- [x] Fix function import (was renderNewsletterEmail, should be generateEmailHtml)
+- [x] Add error handling and loading states
+- [ ] Test email preview with actual content
+- [ ] Push fix to GitHub
+
+
+## 🔧 FIX: Add Articles Button Not Working
+
+**Issue**: Clicking "Add Articles" button does nothing - dialog doesn't open
+
+- [ ] Check EditionEditor for article selector state/dialog
+- [ ] Fix button click handler
+- [ ] Test article selection flow
+- [ ] Push fix to GitHub
