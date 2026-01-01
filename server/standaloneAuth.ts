@@ -77,6 +77,10 @@ export async function registerUser(
   // Hash password
   const passwordHash = await hashPassword(password);
 
+  // Check if this is the first user (should be admin)
+  const allUsers = await db.getAllUsers();
+  const isFirstUser = allUsers.length === 0;
+
   // Create user with a unique openId (using email as base)
   const openId = `local_${email}_${Date.now()}`;
   
@@ -85,7 +89,7 @@ export async function registerUser(
     email,
     name: name || email.split("@")[0],
     loginMethod: "email",
-    role: "user",
+    role: isFirstUser ? "admin" : "user",
     lastSignedIn: new Date(),
   });
 

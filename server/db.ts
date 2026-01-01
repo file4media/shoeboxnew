@@ -535,3 +535,12 @@ export async function getUserById(id: number) {
 
   return result.length > 0 ? result[0] : undefined;
 }
+
+export async function getAllUsers() {
+  const database = await getDb();
+  if (!database) {
+    console.warn("[Database] Cannot get users: database not available");
+    return [];
+  }
+  return database.select().from(users);
+}
