@@ -28,29 +28,9 @@ export default function Newsletters() {
     enabled: !!user,
   });
 
-  // Get total articles across all newsletters
-  const articlesQueries = newsletters?.map((newsletter) =>
-    trpc.articles.list.useQuery(
-      { newsletterId: newsletter.id },
-      { enabled: !!newsletter.id }
-    )
-  ) || [];
-
-  const totalArticles = articlesQueries.reduce((sum, query) => {
-    return sum + (query.data?.length || 0);
-  }, 0);
-
-  // Get total authors across all newsletters
-  const authorsQueries = newsletters?.map((newsletter) =>
-    trpc.authors.list.useQuery(
-      { newsletterId: newsletter.id },
-      { enabled: !!newsletter.id }
-    )
-  ) || [];
-
-  const totalAuthors = authorsQueries.reduce((sum, query) => {
-    return sum + (query.data?.length || 0);
-  }, 0);
+  // Simple stats - will be 0 until we implement proper aggregation
+  const totalArticles = 0;
+  const totalAuthors = 0;
 
   const createMutation = trpc.newsletters.create.useMutation({
     onSuccess: () => {

@@ -286,4 +286,15 @@ PORT=3000
 - [x] Update App.tsx routing to include dashboard
 - [x] Add AppHeader to key pages (Newsletters, NewsletterDetail, Articles)
 - [x] Test navigation flow between all pages
+- [x] Save checkpoint and push to GitHub
+
+## 🔧 FIX: Root URL Routing
+
+**Issue**: Root URL (shoeboxnews.com) auto-redirects logged-in users to /newsletters instead of showing landing page
+
+**Goal**: Make root URL always show landing page with appropriate buttons based on auth state
+
+- [ ] Update App.tsx routing - remove auto-redirect from Home component
+- [ ] Ensure landing page shows "Sign In" for guests, "Go to Dashboard" for logged-in users
+- [ ] Test that shoeboxnews.com shows landing page for both logged-in and logged-out users
 - [ ] Save checkpoint and push to GitHub
