@@ -146,3 +146,10 @@
 - [x] Add migration to server initialization in server/_core/index.ts
 - [x] Test auto-migration locally
 - [x] Push to GitHub and redeploy on Railway
+
+## Railway Static File Serving Fix
+- [x] Investigate production static file serving configuration
+- [x] Fix Express static file middleware for production
+- [x] Add logging to debug static file serving
+- [x] Test production build locally
+- [ ] Push fix to GitHub and redeploy
