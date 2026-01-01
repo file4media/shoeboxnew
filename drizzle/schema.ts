@@ -144,11 +144,12 @@ export type EmailTracking = typeof emailTracking.$inferSelect;
 export type InsertEmailTracking = typeof emailTracking.$inferInsert;
 
 /**
- * Articles table - individual article cards within an edition
+ * Articles table - standalone article library (newsletter-scoped)
+ * Articles can be reused across multiple editions
  */
 export const articles = mysqlTable("articles", {
   id: int("id").autoincrement().primaryKey(),
-  editionId: int("editionId").notNull(),
+  newsletterId: int("newsletterId").notNull(),
   // Article metadata
   category: varchar("category", { length: 100 }),
   title: varchar("title", { length: 500 }).notNull(),
@@ -158,17 +159,36 @@ export const articles = mysqlTable("articles", {
   excerpt: text("excerpt"),
   imageUrl: text("imageUrl"),
   imageCaption: varchar("imageCaption", { length: 255 }),
-  // Ordering
-  displayOrder: int("displayOrder").default(0).notNull(),
+  // Status
+  status: mysqlEnum("status", ["draft", "published", "archived"]).default("draft").notNull(),
   // Publishing
-  isPublished: boolean("isPublished").default(true).notNull(),
+  publishedAt: timestamp("publishedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  editionIdIdx: index("editionId_idx").on(table.editionId),
+  newsletterIdIdx: index("newsletterId_idx").on(table.newsletterId),
   slugIdx: index("slug_idx").on(table.slug),
-  editionSlugIdx: index("edition_slug_idx").on(table.editionId, table.slug),
+  statusIdx: index("status_idx").on(table.status),
 }));
+
+/**
+ * Edition articles junction table - many-to-many relationship
+ * Allows reusing articles across multiple editions
+ */
+export const editionArticles = mysqlTable("edition_articles", {
+  id: int("id").autoincrement().primaryKey(),
+  editionId: int("editionId").notNull(),
+  articleId: int("articleId").notNull(),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  editionIdIdx: index("editionId_idx").on(table.editionId),
+  articleIdIdx: index("articleId_idx").on(table.articleId),
+  uniqueEditionArticle: index("unique_edition_article_idx").on(table.editionId, table.articleId),
+}));
+
+export type EditionArticle = typeof editionArticles.$inferSelect;
+export type InsertEditionArticle = typeof editionArticles.$inferInsert;
 
 export type Article = typeof articles.$inferSelect;
 export type InsertArticle = typeof articles.$inferInsert;

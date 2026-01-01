@@ -198,3 +198,37 @@ PORT=3000
 - [x] Edition saves correctly but redirect URL is broken
 - [x] Check edition creation mutation and router.push logic
 - [x] Changed createEdition to return full edition object instead of just ID
+
+
+## 📚 REBUILD: Article Library System
+
+**Goal**: Create individual articles separately, then compose newsletters by selecting articles
+
+### Phase 1: Article Library
+- [x] Change articles table to be newsletter-scoped (not edition-scoped)
+- [x] Add article status (draft, published, archived)
+- [x] Create edition_articles junction table
+- [x] Create database functions for article library (articleLibraryDb.ts)
+- [x] Create junction table functions (add/remove/reorder)
+- [ ] Create tRPC routes for article library
+- [ ] Create "Articles" page showing all articles in a library view
+- [ ] Add "Create Article" button with form (title, content, image, etc.)
+- [ ] Add "Generate with AI" for single article creation
+- [ ] Add article search/filter by title, category, date
+
+### Phase 2: Newsletter Composer
+- [ ] Create "Add Articles" button in edition editor
+- [ ] Show modal/sidebar with article library
+- [ ] Allow selecting multiple articles to add to edition
+- [ ] Add drag-and-drop to reorder selected articles
+
+### Phase 3: AI Updates
+- [ ] Change AI generation to create ONE article at a time
+- [ ] Remove "generate full newsletter" functionality
+- [ ] Update AI prompts for single article generation
+- [ ] Add article improvement/rewrite feature
+
+### Phase 4: Email Rendering
+- [ ] Update email templates to fetch articles via edition_articles
+- [ ] Render articles in specified order
+- [ ] Test email sending with composed articles
