@@ -153,3 +153,10 @@
 - [x] Add logging to debug static file serving
 - [x] Test production build locally
 - [x] Push fix to GitHub and redeploy
+
+## Railway Build Asset Hash Mismatch
+- [x] Investigate why Railway build generates different asset hashes
+- [x] Create dedicated build.sh script for reliable builds
+- [x] Update package.json to use build script
+- [x] Test build script locally
+- [ ] Push to GitHub and redeploy on Railway

@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "set -e && echo '=== Starting Vite build ===' && vite build && echo '=== Vite build complete ===' && echo '=== Starting esbuild ===' && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && echo '=== Build complete ==='",
+    "build": "bash build.sh",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
