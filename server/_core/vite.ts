@@ -71,7 +71,23 @@ export function serveStatic(app: Express) {
     }
   }
 
-  app.use(express.static(distPath));
+  // Log all requests to debug static file serving
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/assets/')) {
+      console.log(`[Static] Request: ${req.method} ${req.path}`);
+      console.log(`[Static] Serving from: ${distPath}`);
+      const fullPath = path.resolve(distPath, req.path.slice(1));
+      console.log(`[Static] Full path: ${fullPath}`);
+      console.log(`[Static] File exists: ${fs.existsSync(fullPath)}`);
+    }
+    next();
+  });
+  
+  app.use(express.static(distPath, {
+    setHeaders: (res, filepath) => {
+      console.log(`[Static] Serving file: ${filepath}`);
+    }
+  }));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
