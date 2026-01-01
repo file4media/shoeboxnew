@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
+// Force rebuild
 export default function Newsletters() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
