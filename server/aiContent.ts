@@ -25,9 +25,9 @@ export async function generateNewsletterContent(
   } = options;
 
   const lengthGuidance = {
-    short: "Keep it concise, around 300-400 words",
-    medium: "Write a moderate length article, around 600-800 words",
-    long: "Write a comprehensive article, around 1000-1500 words",
+    short: "Keep it concise, around 150-200 words",
+    medium: "Write a moderate length article, around 300-400 words",
+    long: "Write a comprehensive article, around 500-750 words",
   };
 
   const systemPrompt = `You are an expert newsletter content writer. Your task is to create engaging, well-structured newsletter articles that captivate readers and provide value.

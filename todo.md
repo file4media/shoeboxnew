@@ -296,4 +296,14 @@ PORT=3000
 
 - [x] Remove auto-redirect from Home.tsx
 - [x] Test that Home button shows landing page
-- [ ] Push fix to GitHub
+- [x] Push fix to GitHub
+
+
+## 📝 Reduce AI Article Lengths
+
+**Request**: Cut short, medium, long article word counts in half
+
+- [x] Find where article lengths are defined
+- [x] Reduce word counts by 50%
+- [ ] Test article generation
+- [ ] Push to GitHub
