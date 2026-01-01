@@ -148,7 +148,13 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
         // TODO: Implement newsletter-level analytics
-        return { totalSubscribers: 0, totalEditions: 0, totalOpens: 0 };
+        return { 
+          totalSubscribers: 0, 
+          totalEditions: 0, 
+          totalOpens: 0,
+          totalEmailsSent: 0,
+          recentEditions: []
+        };
       }),
 
     delete: protectedProcedure
@@ -482,10 +488,40 @@ export const appRouter = router({
       }),
   }),
 
+  // Article Library - newsletter-scoped articles that can be reused
   articles: router({
+    // Get all articles for a newsletter
+    list: protectedProcedure
+      .input(z.object({ newsletterId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getArticlesByNewsletterId } = await import("./articleLibraryDb");
+        const newsletter = await db.getNewsletterById(input.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return getArticlesByNewsletterId(input.newsletterId);
+      }),
+
+    // Get single article
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getArticleById } = await import("./articleLibraryDb");
+        const article = await getArticleById(input.id);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        const newsletter = await db.getNewsletterById(article.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return article;
+      }),
+
+    // Create new article in library
     create: protectedProcedure
       .input(z.object({
-        editionId: z.number(),
+        newsletterId: z.number(),
         category: z.string().optional(),
         title: z.string().min(1),
         slug: z.string().optional(),
@@ -493,54 +529,20 @@ export const appRouter = router({
         excerpt: z.string().optional(),
         imageUrl: z.string().optional(),
         imageCaption: z.string().optional(),
-        displayOrder: z.number().optional(),
+        status: z.enum(["draft", "published", "archived"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const edition = await db.getEditionById(input.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
-        }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        const { createArticle } = await import("./articleLibraryDb");
+        const newsletter = await db.getNewsletterById(input.newsletterId);
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
         // Generate slug from title if not provided
         const slug = input.slug || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-        return db.createArticle({ ...input, slug });
+        return createArticle({ ...input, slug, status: input.status || "draft" });
       }),
 
-    list: protectedProcedure
-      .input(z.object({ editionId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const edition = await db.getEditionById(input.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
-        }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
-        if (!newsletter || newsletter.userId !== ctx.user.id) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
-        }
-        return db.getArticlesByEditionId(input.editionId);
-      }),
-
-    getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const article = await db.getArticleById(input.id);
-        if (!article) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
-        }
-        const edition = await db.getEditionById(article.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
-        }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
-        if (!newsletter || newsletter.userId !== ctx.user.id) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
-        }
-        return article;
-      }),
-
+    // Update article
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -551,52 +553,85 @@ export const appRouter = router({
         excerpt: z.string().optional(),
         imageUrl: z.string().optional(),
         imageCaption: z.string().optional(),
-        displayOrder: z.number().optional(),
-        isPublished: z.boolean().optional(),
+        status: z.enum(["draft", "published", "archived"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        const { getArticleById, updateArticle } = await import("./articleLibraryDb");
         const { id, ...updates } = input;
-        const article = await db.getArticleById(id);
+        const article = await getArticleById(id);
         if (!article) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
         }
-        const edition = await db.getEditionById(article.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
-        }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        const newsletter = await db.getNewsletterById(article.newsletterId);
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
-        await db.updateArticle(id, updates);
+        await updateArticle(id, updates);
         return { success: true };
       }),
 
+    // Delete article
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        const article = await db.getArticleById(input.id);
+        const { getArticleById, deleteArticle } = await import("./articleLibraryDb");
+        const article = await getArticleById(input.id);
         if (!article) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
         }
-        const edition = await db.getEditionById(article.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
-        }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        const newsletter = await db.getNewsletterById(article.newsletterId);
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
-        await db.deleteArticle(input.id);
+        await deleteArticle(input.id);
         return { success: true };
       }),
 
-    reorder: protectedProcedure
+    // Generate article with AI
+    generateWithAI: protectedProcedure
       .input(z.object({
-        editionId: z.number(),
-        articleIds: z.array(z.number()),
+        newsletterId: z.number(),
+        topic: z.string().min(1),
+        category: z.string().optional(),
+        tone: z.enum(["professional", "casual", "humorous", "serious"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        const { createArticle } = await import("./articleLibraryDb");
+        const { generateSingleArticle } = await import("./aiContent");
+        
+        const newsletter = await db.getNewsletterById(input.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        // Generate article with AI
+        const generated = await generateSingleArticle({
+          topic: input.topic,
+          category: input.category,
+          tone: input.tone || "professional",
+        });
+
+        // Save to library
+        const slug = generated.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        return createArticle({
+          newsletterId: input.newsletterId,
+          title: generated.title,
+          content: generated.content,
+          excerpt: generated.excerpt,
+          category: input.category,
+          slug,
+          status: "draft",
+        });
+      }),
+  }),
+
+  // Edition-Article linking
+  editionArticles: router({
+    // Get articles for an edition
+    list: protectedProcedure
+      .input(z.object({ editionId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getArticlesForEdition } = await import("./articleLibraryDb");
         const edition = await db.getEditionById(input.editionId);
         if (!edition) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
@@ -605,7 +640,71 @@ export const appRouter = router({
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
-        await db.reorderArticles(input.editionId, input.articleIds);
+        return getArticlesForEdition(input.editionId);
+      }),
+
+    // Add article to edition
+    add: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        articleId: z.number(),
+        displayOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { addArticleToEdition, getArticleById } = await import("./articleLibraryDb");
+        const edition = await db.getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const article = await getArticleById(input.articleId);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await addArticleToEdition(input.editionId, input.articleId, input.displayOrder);
+        return { success: true };
+      }),
+
+    // Remove article from edition
+    remove: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        articleId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { removeArticleFromEdition } = await import("./articleLibraryDb");
+        const edition = await db.getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await removeArticleFromEdition(input.editionId, input.articleId);
+        return { success: true };
+      }),
+
+    // Reorder articles in edition
+    reorder: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        articleIds: z.array(z.number()),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { reorderEditionArticles } = await import("./articleLibraryDb");
+        const edition = await db.getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await reorderEditionArticles(input.editionId, input.articleIds);
         return { success: true };
       }),
   }),

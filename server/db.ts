@@ -275,65 +275,7 @@ export async function getScheduledEditions(): Promise<NewsletterEdition[]> {
 }
 
 // ============ Article Functions ============
-
-export async function getArticlesByEditionId(editionId: number): Promise<Article[]> {
-  const db = await getDb();
-  if (!db) return [];
-  
-  return db
-    .select()
-    .from(articles)
-    .where(eq(articles.editionId, editionId))
-    .orderBy(asc(articles.displayOrder));
-}
-
-export async function getArticleById(id: number): Promise<Article | null> {
-  const db = await getDb();
-  if (!db) return null;
-  
-  const result = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
-  return result[0] || null;
-}
-
-export async function createArticle(article: InsertArticle): Promise<number> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.insert(articles).values(article);
-  return Number(result[0].insertId);
-}
-
-export async function updateArticle(id: number, updates: Partial<InsertArticle>): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(articles).set(updates).where(eq(articles.id, id));
-}
-
-export async function deleteArticle(id: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.delete(articles).where(eq(articles.id, id));
-}
-
-export async function reorderArticles(editionId: number, articleIds: number[]): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Update order index for each article
-  for (let i = 0; i < articleIds.length; i++) {
-    await db
-      .update(articles)
-      .set({ displayOrder: i })
-      .where(
-        and(
-          eq(articles.id, articleIds[i]),
-          eq(articles.editionId, editionId)
-        )
-      );
-  }
-}
+// Article functions moved to articleLibraryDb.ts
 
 // ============ Email Tracking Functions ============
 

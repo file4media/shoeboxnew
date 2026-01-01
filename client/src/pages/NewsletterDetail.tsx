@@ -99,6 +99,9 @@ export default function NewsletterDetail() {
           <h1 className="text-3xl font-bold mb-2">{newsletter.name}</h1>
           <p className="text-muted-foreground">{newsletter.description || "No description"}</p>
           <div className="flex gap-2 mt-4">
+            <Button variant="outline" onClick={() => setLocation(`/newsletters/${newsletterId}/articles`)}>
+              Article Library
+            </Button>
             <Button variant="outline" onClick={() => setLocation(`/newsletters/${newsletterId}/subscribers`)}>
               Manage Subscribers
             </Button>

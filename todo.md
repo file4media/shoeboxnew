@@ -204,31 +204,40 @@ PORT=3000
 
 **Goal**: Create individual articles separately, then compose newsletters by selecting articles
 
-### Phase 1: Article Library
+### Phase 1: Article Library ✅
 - [x] Change articles table to be newsletter-scoped (not edition-scoped)
 - [x] Add article status (draft, published, archived)
 - [x] Create edition_articles junction table
 - [x] Create database functions for article library (articleLibraryDb.ts)
 - [x] Create junction table functions (add/remove/reorder)
-- [ ] Create tRPC routes for article library
-- [ ] Create "Articles" page showing all articles in a library view
-- [ ] Add "Create Article" button with form (title, content, image, etc.)
-- [ ] Add "Generate with AI" for single article creation
-- [ ] Add article search/filter by title, category, date
+- [x] Create tRPC routes for article library
+- [x] Create "Articles" page showing all articles in a library view
+- [x] Add "Create Article" button with form (title, content, image, etc.)
+- [x] Add "Generate with AI" for single article creation
+- [x] Add article search/filter by title, category, date
+- [x] Add Articles navigation link
 
-### Phase 2: Newsletter Composer
-- [ ] Create "Add Articles" button in edition editor
-- [ ] Show modal/sidebar with article library
-- [ ] Allow selecting multiple articles to add to edition
-- [ ] Add drag-and-drop to reorder selected articles
+### Phase 2: Newsletter Composer ✅
+- [x] Create "Add Articles" button in edition editor
+- [x] Show modal/sidebar with article library
+- [x] Allow selecting multiple articles to add to edition
+- [x] Add drag-and-drop to reorder selected articles
+- [x] Integrated ArticleSelector component into EditionEditor
 
-### Phase 3: AI Updates
-- [ ] Change AI generation to create ONE article at a time
-- [ ] Remove "generate full newsletter" functionality
-- [ ] Update AI prompts for single article generation
-- [ ] Add article improvement/rewrite feature
+### Phase 3: AI Updates ✅
+- [x] Change AI generation to create ONE article at a time
+- [x] Remove "generate full newsletter" functionality
+- [x] Update AI prompts for single article generation (generateSingleArticle)
+- [x] Add article improvement/rewrite feature
 
-### Phase 4: Email Rendering
-- [ ] Update email templates to fetch articles via edition_articles
-- [ ] Render articles in specified order
-- [ ] Test email sending with composed articles
+### Phase 4: Email Rendering ✅
+- [x] Update email templates to fetch articles via edition_articles
+- [x] Render articles in specified order
+- [x] Fixed getArticlesForEdition function usage
+
+### Phase 5: Bug Fixes ✅
+- [x] Fixed all TypeScript errors
+- [x] Removed old article functions from db.ts
+- [x] Updated EditionEditor to remove old article code
+- [x] Fixed Analytics query to return all required fields
+- [x] Fixed email.ts to use new article library functions

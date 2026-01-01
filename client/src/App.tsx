@@ -8,10 +8,11 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Newsletters from "./pages/Newsletters";
 import NewsletterDetail from "./pages/NewsletterDetail";
-import EditionEditor from "./pages/EditionEditor";
+import { EditionEditor } from "@/pages/EditionEditor";
 import Subscribers from "./pages/Subscribers";
 import Analytics from "./pages/Analytics";
-import ArticleView from "./pages/ArticleView";
+// import ArticleView from "./pages/ArticleView";
+import Articles from "./pages/Articles";
 
 function Router() {
   return (
@@ -21,9 +22,10 @@ function Router() {
       <Route path={"/newsletters"} component={Newsletters} />
       <Route path={"/newsletters/:id"} component={NewsletterDetail} />
       <Route path={"/newsletters/:newsletterId/editions/:editionId"} component={EditionEditor} />
+      <Route path={"/newsletters/:newsletterId/articles"} component={Articles} />
       <Route path={"/newsletters/:id/subscribers"} component={Subscribers} />
       <Route path={"/newsletters/:id/analytics"} component={Analytics} />
-      <Route path={"/edition/:editionId/article/:articleSlug"} component={ArticleView} />
+      {/* <Route path={"/edition/:editionId/article/:articleSlug"} component={ArticleView} /> */}
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

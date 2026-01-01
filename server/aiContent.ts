@@ -154,3 +154,66 @@ Provide exactly 5 subject lines, one per line, without numbering or bullets.`;
     throw new Error("Failed to generate subject lines");
   }
 }
+
+
+/**
+ * Generate a single article with AI
+ */
+export async function generateSingleArticle(options: {
+  topic: string;
+  category?: string;
+  tone?: "professional" | "casual" | "humorous" | "serious";
+}): Promise<{ title: string; content: string; excerpt: string }> {
+  const { topic, category, tone = "professional" } = options;
+
+  const systemPrompt = `You are an expert newsletter writer. Create a single, focused article that is engaging and informative.
+
+Writing guidelines:
+- Use a ${tone} tone
+- Write 400-600 words
+- Use markdown formatting
+- Include clear headings
+- Make it scannable and engaging
+- Focus on providing value to readers`;
+
+  const userPrompt = `Write a newsletter article about: ${topic}
+${category ? `Category: ${category}` : ""}
+
+Return a JSON object with:
+{
+  "title": "Compelling article title",
+  "excerpt": "Brief 1-2 sentence summary",
+  "content": "Full article content in markdown"
+}`;
+
+  const { callClaude } = await import("./claudeAPI");
+  
+  try {
+    const response = await callClaude(
+      [{ role: "user", content: userPrompt }],
+      { system: systemPrompt, maxTokens: 2000 }
+    );
+    
+    // Try to parse JSON response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        title: parsed.title || "Untitled Article",
+        content: parsed.content || response,
+        excerpt: parsed.excerpt || parsed.content?.substring(0, 150) + "..." || "",
+      };
+    }
+    
+    // Fallback: extract title and use response as content
+    const lines = response.split("\n");
+    const title = lines[0].replace(/^#\s*/, "").trim() || "Untitled Article";
+    const content = lines.slice(1).join("\n").trim();
+    const excerpt = content.substring(0, 150) + "...";
+    
+    return { title, content, excerpt };
+  } catch (error) {
+    console.error("Error generating article:", error);
+    throw new Error("Failed to generate article with AI");
+  }
+}

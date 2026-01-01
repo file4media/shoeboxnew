@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
 import * as db from "./db";
+import { getArticlesForEdition } from "./articleLibraryDb";
 import { getSectionsByEdition } from "./sectionsDb";
 import { generateEmailHtml } from "./emailTemplate";
 
@@ -90,7 +91,7 @@ export async function sendNewsletterEdition(editionId: number, baseUrl: string) 
         const trackingPixelUrl = generateTrackingPixelUrl(trackingToken, baseUrl);
 
         // Get articles for this edition
-        const articles = await db.getArticlesByEditionId(edition.id);
+        const articles = await getArticlesForEdition(edition.id);
         
         // Get sections for this edition
         const sections = await getSectionsByEdition(edition.id);
@@ -164,7 +165,7 @@ export async function sendTestEmail(
   const trackingPixelUrl = generateTrackingPixelUrl(trackingToken, baseUrl);
   
   // Get articles for this edition
-  const articles = await db.getArticlesByEditionId(edition.id);
+  const articles = await getArticlesForEdition(edition.id);
   
   // Get sections for this edition
   const sections = await getSectionsByEdition(edition.id);
