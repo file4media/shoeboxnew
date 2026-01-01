@@ -134,3 +134,8 @@
 - [ ] Ensure frontend assets are built during Railway build step
 - [x] Push fix to GitHub
 - [ ] Redeploy on Railway
+
+## Railway Database Migration
+- [x] Create standalone migration script for Railway deployment
+- [x] Document how to run migrations on Railway
+- [ ] Test database setup on Railway

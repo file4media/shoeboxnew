@@ -62,6 +62,57 @@ Railway should auto-detect these, but verify:
 2. Wait for the build to complete (usually 2-3 minutes)
 3. Railway will provide a temporary URL like `shoeboxnew-production.up.railway.app`
 
+## Step 5.5: Run Database Migrations
+
+**IMPORTANT**: After the first deployment, you need to create the database tables.
+
+### Option 1: Using Railway CLI (Recommended)
+
+1. Install Railway CLI:
+   ```bash
+   npm i -g @railway/cli
+   ```
+
+2. Login to Railway:
+   ```bash
+   railway login
+   ```
+
+3. Link to your project:
+   ```bash
+   railway link
+   ```
+
+4. Run migrations:
+   ```bash
+   railway run node migrate.mjs
+   ```
+
+### Option 2: Using Railway Dashboard
+
+1. Go to your service in Railway dashboard
+2. Click on "Settings" tab
+3. Scroll to "Deploy" section
+4. Under "Custom Start Command", temporarily change it to:
+   ```
+   node migrate.mjs && npm run start
+   ```
+5. Click "Deploy" to redeploy
+6. After successful deployment, change the start command back to:
+   ```
+   npm run start
+   ```
+7. Deploy again
+
+### Verify Migration Success
+
+Check the deployment logs. You should see:
+```
+✅ Database connection established
+🔄 Running migrations...
+✅ Migrations completed successfully!
+```
+
 ## Step 6: Add Custom Domain
 
 1. In Railway, go to your service's "Settings" tab
