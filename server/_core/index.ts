@@ -28,6 +28,16 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Run database migrations automatically on startup
+  try {
+    const { runAutoMigration } = await import("./autoMigrate");
+    await runAutoMigration();
+  } catch (error) {
+    console.error("[Server] Failed to run auto-migration:", error);
+    console.error("[Server] The application may not function correctly without database tables.");
+    // Don't exit - let the server start anyway for debugging
+  }
+  
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
