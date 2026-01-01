@@ -386,6 +386,33 @@ export const appRouter = router({
         const stats = await db.getEmailTrackingStats(input.id);
         return stats;
       }),
+
+    getPreviewHtml: protectedProcedure
+      .input(z.object({ editionId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { renderNewsletterEmail } = await import("./emailTemplate");
+        const edition = await db.getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        
+        // Get edition articles
+        const editionArticles = await db.getEditionArticles(input.editionId);
+        
+        // Render email HTML
+        const html = renderNewsletterEmail({
+          newsletter,
+          edition,
+          articles: editionArticles,
+          unsubscribeUrl: "#",
+        });
+        
+        return html;
+      }),
   }),
 
   ai: router({

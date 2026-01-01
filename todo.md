@@ -318,5 +318,18 @@ PORT=3000
 - [x] Update AI prompt to ban em dashes
 - [x] Add emoji checkbox to GenerateArticleDialog
 - [x] Pass emoji preference to AI generation
-- [ ] Test article generation
+- [x] Test article generation
+- [x] Push to GitHub
+
+
+## 👁️ Add Article Preview & Email Preview
+
+**Requirements**:
+1. Show article excerpts in library selection so users can see content before adding
+2. Add "Preview Email" button to see newsletter before sending
+
+- [x] Add excerpt/preview to ArticleSelector component
+- [x] Add email preview button to newsletter edition page
+- [x] Create email preview modal/dialog
+- [ ] Test both preview features
 - [ ] Push to GitHub

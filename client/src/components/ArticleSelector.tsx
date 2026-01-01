@@ -224,12 +224,17 @@ export function ArticleSelector({ newsletterId, editionId }: ArticleSelectorProp
                 {availableArticles.map((article) => (
                   <div
                     key={article.id}
-                    className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg"
+                    className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{article.title}</div>
+                      <div className="font-medium">{article.title}</div>
+                      {article.excerpt && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                          {article.excerpt}
+                        </p>
+                      )}
                       {article.category && (
-                        <Badge variant="secondary" className="mt-1">
+                        <Badge variant="secondary" className="mt-2">
                           {article.category}
                         </Badge>
                       )}
@@ -240,6 +245,7 @@ export function ArticleSelector({ newsletterId, editionId }: ArticleSelectorProp
                         addArticle.mutate({ editionId, articleId: article.id })
                       }
                       disabled={addArticle.isPending}
+                      className="shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>

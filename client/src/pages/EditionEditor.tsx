@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ArticleSelector } from "@/components/ArticleSelector";
 import { SectionEditor } from "@/components/SectionEditor";
+import { EmailPreviewDialog } from "@/components/EmailPreviewDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, useRoute } from "wouter";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function EditionEditor() {
   const [introText, setIntroText] = useState("");
   const [scheduledFor, setScheduledFor] = useState("");
   const [templateStyle, setTemplateStyle] = useState<"morning-brew" | "minimalist" | "bold" | "magazine">("morning-brew");
+  const [showPreview, setShowPreview] = useState(false);
 
   const { data: edition, isLoading: editionLoading } = trpc.editions.getById.useQuery(
     { id: editionId },
@@ -103,6 +105,10 @@ export function EditionEditor() {
             <Button onClick={handleSaveEdition} disabled={updateEditionMutation.isPending}>
               Save Changes
             </Button>
+            <Button variant="outline" onClick={() => setShowPreview(true)}>
+              <Eye className="h-4 w-4 mr-2" />
+              Preview Email
+            </Button>
             <Button variant="outline">
               <Send className="h-4 w-4 mr-2" />
               Send Newsletter
@@ -176,6 +182,13 @@ export function EditionEditor() {
         {/* Article Library Selector */}
         <ArticleSelector newsletterId={edition.newsletterId} editionId={editionId} />
       </div>
+
+      {/* Email Preview Dialog */}
+      <EmailPreviewDialog
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        editionId={editionId}
+      />
     </div>
   );
 }
