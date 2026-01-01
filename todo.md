@@ -152,4 +152,4 @@
 - [x] Fix Express static file middleware for production
 - [x] Add logging to debug static file serving
 - [x] Test production build locally
-- [ ] Push fix to GitHub and redeploy
+- [x] Push fix to GitHub and redeploy
