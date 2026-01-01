@@ -391,31 +391,42 @@ export const appRouter = router({
     getPreviewHtml: protectedProcedure
       .input(z.object({ editionId: z.number() }))
       .query(async ({ input, ctx }) => {
-        const edition = await db.getEditionById(input.editionId);
-        if (!edition) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        try {
+          const edition = await db.getEditionById(input.editionId);
+          if (!edition) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+          }
+          const newsletter = await db.getNewsletterById(edition.newsletterId);
+          if (!newsletter || newsletter.userId !== ctx.user.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+          }
+          
+          // Get edition data
+          const editionArticles = await db.getEditionArticles(input.editionId);
+          const sections = await db.getEditionSections(input.editionId);
+          
+          console.log('[getPreviewHtml] Edition:', edition.id, 'Articles:', editionArticles.length, 'Sections:', sections.length);
+          
+          // Render email HTML for preview (use dummy values for tracking)
+          const html = generateEmailHtml(
+            newsletter,
+            edition,
+            editionArticles,
+            sections,
+            "", // No tracking pixel for preview
+            "https://example.com", // Dummy base URL
+            0 // Dummy subscriber ID
+          );
+          
+          console.log('[getPreviewHtml] Generated HTML length:', html.length);
+          return html;
+        } catch (error) {
+          console.error('[getPreviewHtml] Error:', error);
+          throw new TRPCError({ 
+            code: "INTERNAL_SERVER_ERROR", 
+            message: error instanceof Error ? error.message : "Failed to generate preview" 
+          });
         }
-        const newsletter = await db.getNewsletterById(edition.newsletterId);
-        if (!newsletter || newsletter.userId !== ctx.user.id) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
-        }
-        
-        // Get edition data
-        const editionArticles = await db.getEditionArticles(input.editionId);
-        const sections = await db.getEditionSections(input.editionId);
-        
-        // Render email HTML for preview (use dummy values for tracking)
-        const html = generateEmailHtml(
-          newsletter,
-          edition,
-          editionArticles,
-          sections,
-          "", // No tracking pixel for preview
-          "https://example.com", // Dummy base URL
-          0 // Dummy subscriber ID
-        );
-        
-        return html;
       }),
   }),
 

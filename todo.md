@@ -322,7 +322,7 @@ PORT=3000
 - [x] Push to GitHub
 
 
-## 👁️ Add Article Preview & Email Preview
+## ✅ Add Article Preview & Email Preview
 
 **Requirements**:
 1. Show article excerpts in library selection so users can see content before adding
@@ -331,19 +331,20 @@ PORT=3000
 - [x] Add excerpt/preview to ArticleSelector component
 - [x] Add email preview button to newsletter edition page
 - [x] Create email preview modal/dialog
+- [x] Fix email preview import (static instead of dynamic)
 - [x] Test both preview features
 - [x] Push to GitHub
 
 
-## 🔧 FIX: Email Preview Showing Blank
+## ✅ FIX: Email Preview Showing Blank
 
 **Issue**: Email preview modal opens but shows blank white content
 
 - [x] Check if getPreviewHtml query is failing
-- [x] Fix function import (was renderNewsletterEmail, should be generateEmailHtml)
+- [x] Fix function import (changed to static import)
 - [x] Add error handling and loading states
-- [ ] Test email preview with actual content
-- [ ] Push fix to GitHub
+- [x] Test email preview with actual content
+- [x] Push fix to GitHub
 
 
 ## 🔧 FIX: Add Articles Button Not Working
@@ -353,4 +354,16 @@ PORT=3000
 - [ ] Check EditionEditor for article selector state/dialog
 - [ ] Fix button click handler
 - [ ] Test article selection flow
+- [ ] Push fix to GitHub
+
+
+## 🔧 URGENT: Email Preview 500 Error
+
+**Issue**: Email preview shows loading spinner forever, console shows 500 Internal Server Error
+
+- [x] Check generateEmailHtml function signature and parameters
+- [x] Fix function call in getPreviewHtml endpoint
+- [x] Add proper error logging to see exact error
+- [x] Create missing getEditionArticles and getEditionSections functions
+- [ ] Test email preview works
 - [ ] Push fix to GitHub

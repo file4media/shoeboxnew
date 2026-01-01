@@ -319,3 +319,41 @@ export async function getEmailTrackingStats(editionId: number) {
   
   return { sent, opened, openRate };
 }
+
+// ============ Edition Content Functions ============
+
+export async function getEditionArticles(editionId: number): Promise<Article[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Import needed types
+  const { editionArticles } = await import("../drizzle/schema");
+  
+  // Get articles for this edition with their display order
+  const result = await db
+    .select({
+      article: articles,
+      displayOrder: editionArticles.displayOrder
+    })
+    .from(editionArticles)
+    .innerJoin(articles, eq(editionArticles.articleId, articles.id))
+    .where(eq(editionArticles.editionId, editionId))
+    .orderBy(asc(editionArticles.displayOrder));
+  
+  return result.map(r => r.article);
+}
+
+export async function getEditionSections(editionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { newsletterSections } = await import("../drizzle/schema");
+  
+  const result = await db
+    .select()
+    .from(newsletterSections)
+    .where(eq(newsletterSections.editionId, editionId))
+    .orderBy(asc(newsletterSections.displayOrder));
+  
+  return result;
+}
