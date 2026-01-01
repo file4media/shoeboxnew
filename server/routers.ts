@@ -530,6 +530,7 @@ export const appRouter = router({
         imageUrl: z.string().optional(),
         imageCaption: z.string().optional(),
         status: z.enum(["draft", "published", "archived"]).optional(),
+        authorId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { createArticle } = await import("./articleLibraryDb");
@@ -554,6 +555,7 @@ export const appRouter = router({
         imageUrl: z.string().optional(),
         imageCaption: z.string().optional(),
         status: z.enum(["draft", "published", "archived"]).optional(),
+        authorId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { getArticleById, updateArticle } = await import("./articleLibraryDb");
@@ -594,14 +596,30 @@ export const appRouter = router({
         topic: z.string().min(1),
         category: z.string().optional(),
         tone: z.enum(["professional", "casual", "humorous", "serious"]).optional(),
+        authorId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { createArticle } = await import("./articleLibraryDb");
         const { generateSingleArticle } = await import("./aiContent");
+        const { getAuthorById } = await import("./authorsDb");
         
         const newsletter = await db.getNewsletterById(input.newsletterId);
         if (!newsletter || newsletter.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        // Get author style if authorId is provided
+        let authorStyle: { name: string; writingStyle: string; tone: string; personality?: string } | undefined;
+        if (input.authorId) {
+          const author = await getAuthorById(input.authorId);
+          if (author && author.newsletterId === input.newsletterId) {
+            authorStyle = {
+              name: author.name,
+              writingStyle: author.writingStyle,
+              tone: author.tone,
+              personality: author.personality || undefined,
+            };
+          }
         }
 
         // Generate article with AI
@@ -609,6 +627,7 @@ export const appRouter = router({
           topic: input.topic,
           category: input.category,
           tone: input.tone || "professional",
+          authorStyle,
         });
 
         // Save to library
@@ -621,6 +640,7 @@ export const appRouter = router({
           category: input.category,
           slug,
           status: "draft",
+          authorId: input.authorId,
         });
       }),
   }),
@@ -927,6 +947,96 @@ export const appRouter = router({
         );
         
         return updateSection(input.id, { content: improvedContent });
+      }),
+  }),
+
+  authors: router({
+    // List all authors for a newsletter
+    list: protectedProcedure
+      .input(z.object({ newsletterId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getAuthorsByNewsletter } = await import("./authorsDb");
+        const newsletter = await db.getNewsletterById(input.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new Error("Newsletter not found");
+        }
+        return getAuthorsByNewsletter(input.newsletterId);
+      }),
+
+    // Get single author
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getAuthorById } = await import("./authorsDb");
+        const author = await getAuthorById(input.id);
+        if (!author) {
+          return null;
+        }
+        const newsletter = await db.getNewsletterById(author.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return author;
+      }),
+
+    // Create new author
+    create: protectedProcedure
+      .input(z.object({
+        newsletterId: z.number(),
+        name: z.string().min(1),
+        bio: z.string().optional(),
+        writingStyle: z.string().min(1),
+        tone: z.string().min(1),
+        personality: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { createAuthor } = await import("./authorsDb");
+        const newsletter = await db.getNewsletterById(input.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new Error("Newsletter not found");
+        }
+        return createAuthor(input);
+      }),
+
+    // Update author
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        bio: z.string().optional(),
+        writingStyle: z.string().min(1).optional(),
+        tone: z.string().min(1).optional(),
+        personality: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { getAuthorById, updateAuthor } = await import("./authorsDb");
+        const author = await getAuthorById(input.id);
+        if (!author) {
+          throw new Error("Author not found");
+        }
+        const newsletter = await db.getNewsletterById(author.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new Error("Unauthorized");
+        }
+        const { id, ...updates } = input;
+        return updateAuthor(id, updates);
+      }),
+
+    // Delete author
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const { getAuthorById, deleteAuthor } = await import("./authorsDb");
+        const author = await getAuthorById(input.id);
+        if (!author) {
+          throw new Error("Author not found");
+        }
+        const newsletter = await db.getNewsletterById(author.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new Error("Unauthorized");
+        }
+        await deleteAuthor(input.id);
+        return { success: true };
       }),
   }),
 

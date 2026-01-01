@@ -241,3 +241,37 @@ PORT=3000
 - [x] Updated EditionEditor to remove old article code
 - [x] Fixed Analytics query to return all required fields
 - [x] Fixed email.ts to use new article library functions
+
+
+## ✍️ NEW FEATURE: Multi-Author System with AI Writing Styles
+
+**Goal**: Create multiple authors with distinct writing styles that can be assigned to articles
+
+### Phase 1: Database & Backend
+- [ ] Create `authors` table (name, bio, writingStyle, tone, personality)
+- [ ] Add `authorId` to articles table
+- [ ] Create author CRUD database functions
+- [ ] Create tRPC routes for author management
+
+### Phase 2: Author Management UI
+- [ ] Create Authors page listing all authors
+- [ ] Add "Create Author" dialog with style configuration
+- [ ] Add "Edit Author" dialog
+- [ ] Add author deletion with confirmation
+
+### Phase 3: Article-Author Integration
+- [ ] Add author selector to article creation form
+- [ ] Add author selector to AI generation dialog
+- [ ] Display author name in article library
+- [ ] Filter articles by author
+
+### Phase 4: AI Style Integration
+- [ ] Update generateSingleArticle to accept author style
+- [ ] Inject author personality into AI prompts
+- [ ] Test different writing styles (formal, casual, technical, etc.)
+
+### Phase 5: Deployment
+- [ ] Test complete author workflow
+- [ ] Save checkpoint
+- [ ] Push to GitHub
+- [ ] Verify Railway deployment

@@ -37,6 +37,12 @@ export function GenerateArticleDialog({
   const [topic, setTopic] = useState("");
   const [category, setCategory] = useState("");
   const [tone, setTone] = useState<"professional" | "casual" | "humorous" | "serious">("professional");
+  const [authorId, setAuthorId] = useState<number | undefined>(undefined);
+
+  const { data: authors = [] } = trpc.authors.list.useQuery(
+    { newsletterId },
+    { enabled: open && newsletterId > 0 }
+  );
 
   const generateArticle = trpc.articles.generateWithAI.useMutation({
     onSuccess: () => {
@@ -53,6 +59,7 @@ export function GenerateArticleDialog({
     setTopic("");
     setCategory("");
     setTone("professional");
+    setAuthorId(undefined);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,6 +74,7 @@ export function GenerateArticleDialog({
       topic: topic.trim(),
       category: category.trim() || undefined,
       tone,
+      authorId,
     });
   };
 
@@ -106,8 +114,28 @@ export function GenerateArticleDialog({
           </div>
 
           <div>
-            <Label htmlFor="tone">Tone</Label>
-            <Select value={tone} onValueChange={(v: any) => setTone(v)}>
+            <Label htmlFor="author">Author (Optional)</Label>
+            <Select value={authorId?.toString() || "none"} onValueChange={(v) => setAuthorId(v === "none" ? undefined : parseInt(v))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an author" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No author - use tone below</SelectItem>
+                {authors.map((author) => (
+                  <SelectItem key={author.id} value={author.id.toString()}>
+                    {author.name} ({author.writingStyle}, {author.tone})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              {authorId ? "AI will use this author's writing style" : "AI will use the tone selected below"}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="tone">Tone {authorId && "(overridden by author style)"}</Label>
+            <Select value={tone} onValueChange={(v: any) => setTone(v)} disabled={!!authorId}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

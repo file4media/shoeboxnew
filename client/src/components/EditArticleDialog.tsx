@@ -40,10 +40,16 @@ export function EditArticleDialog({
   const [category, setCategory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [status, setStatus] = useState<"draft" | "published" | "archived">("draft");
+  const [authorId, setAuthorId] = useState<number | undefined>(undefined);
 
   const { data: article, isLoading } = trpc.articles.getById.useQuery(
     { id: articleId },
     { enabled: !!articleId && open }
+  );
+
+  const { data: authors = [] } = trpc.authors.list.useQuery(
+    { newsletterId: article?.newsletterId || 0 },
+    { enabled: !!article && open }
   );
 
   useEffect(() => {
@@ -54,6 +60,7 @@ export function EditArticleDialog({
       setCategory(article.category || "");
       setImageUrl(article.imageUrl || "");
       setStatus(article.status as any);
+      setAuthorId(article.authorId || undefined);
     }
   }, [article]);
 
@@ -82,6 +89,7 @@ export function EditArticleDialog({
       category: category.trim() || undefined,
       imageUrl: imageUrl.trim() || undefined,
       status,
+      authorId,
     });
   };
 
@@ -152,6 +160,23 @@ export function EditArticleDialog({
                 placeholder="https://example.com/image.jpg"
                 type="url"
               />
+            </div>
+
+            <div>
+              <Label htmlFor="author">Author (Optional)</Label>
+              <Select value={authorId?.toString() || "none"} onValueChange={(v) => setAuthorId(v === "none" ? undefined : parseInt(v))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an author" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No author</SelectItem>
+                  {authors.map((author) => (
+                    <SelectItem key={author.id} value={author.id.toString()}>
+                      {author.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

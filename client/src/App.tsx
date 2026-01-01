@@ -13,6 +13,7 @@ import Subscribers from "./pages/Subscribers";
 import Analytics from "./pages/Analytics";
 // import ArticleView from "./pages/ArticleView";
 import Articles from "./pages/Articles";
+import Authors from "./pages/Authors";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/newsletters/:id"} component={NewsletterDetail} />
       <Route path={"/newsletters/:newsletterId/editions/:editionId"} component={EditionEditor} />
       <Route path={"/newsletters/:newsletterId/articles"} component={Articles} />
+      <Route path={"/newsletters/:newsletterId/authors"} component={Authors} />
       <Route path={"/newsletters/:id/subscribers"} component={Subscribers} />
       <Route path={"/newsletters/:id/analytics"} component={Analytics} />
       {/* <Route path={"/edition/:editionId/article/:articleSlug"} component={ArticleView} /> */}

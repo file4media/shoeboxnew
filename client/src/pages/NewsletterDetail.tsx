@@ -102,6 +102,9 @@ export default function NewsletterDetail() {
             <Button variant="outline" onClick={() => setLocation(`/newsletters/${newsletterId}/articles`)}>
               Article Library
             </Button>
+            <Button variant="outline" onClick={() => setLocation(`/newsletters/${newsletterId}/authors`)}>
+              Manage Authors
+            </Button>
             <Button variant="outline" onClick={() => setLocation(`/newsletters/${newsletterId}/subscribers`)}>
               Manage Subscribers
             </Button>

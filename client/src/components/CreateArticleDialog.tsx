@@ -40,6 +40,12 @@ export function CreateArticleDialog({
   const [category, setCategory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [status, setStatus] = useState<"draft" | "published" | "archived">("draft");
+  const [authorId, setAuthorId] = useState<number | undefined>(undefined);
+
+  const { data: authors = [] } = trpc.authors.list.useQuery(
+    { newsletterId },
+    { enabled: open && newsletterId > 0 }
+  );
 
   const createArticle = trpc.articles.create.useMutation({
     onSuccess: () => {
@@ -59,6 +65,7 @@ export function CreateArticleDialog({
     setCategory("");
     setImageUrl("");
     setStatus("draft");
+    setAuthorId(undefined);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +83,7 @@ export function CreateArticleDialog({
       category: category.trim() || undefined,
       imageUrl: imageUrl.trim() || undefined,
       status,
+      authorId,
     });
   };
 
@@ -143,6 +151,23 @@ export function CreateArticleDialog({
               placeholder="https://example.com/image.jpg"
               type="url"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="author">Author (Optional)</Label>
+            <Select value={authorId?.toString() || "none"} onValueChange={(v) => setAuthorId(v === "none" ? undefined : parseInt(v))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an author" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No author</SelectItem>
+                {authors.map((author) => (
+                  <SelectItem key={author.id} value={author.id.toString()}>
+                    {author.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

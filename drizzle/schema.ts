@@ -144,12 +144,33 @@ export type EmailTracking = typeof emailTracking.$inferSelect;
 export type InsertEmailTracking = typeof emailTracking.$inferInsert;
 
 /**
+ * Authors table - writing personas with distinct styles
+ */
+export const authors = mysqlTable("authors", {
+  id: int("id").autoincrement().primaryKey(),
+  newsletterId: int("newsletterId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  bio: text("bio"),
+  writingStyle: varchar("writingStyle", { length: 100 }).notNull(),
+  tone: varchar("tone", { length: 100 }).notNull(),
+  personality: text("personality"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  newsletterIdIdx: index("newsletterId_idx").on(table.newsletterId),
+}));
+
+export type Author = typeof authors.$inferSelect;
+export type InsertAuthor = typeof authors.$inferInsert;
+
+/**
  * Articles table - standalone article library (newsletter-scoped)
  * Articles can be reused across multiple editions
  */
 export const articles = mysqlTable("articles", {
   id: int("id").autoincrement().primaryKey(),
   newsletterId: int("newsletterId").notNull(),
+  authorId: int("authorId"),
   // Article metadata
   category: varchar("category", { length: 100 }),
   title: varchar("title", { length: 500 }).notNull(),

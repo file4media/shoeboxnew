@@ -163,10 +163,35 @@ export async function generateSingleArticle(options: {
   topic: string;
   category?: string;
   tone?: "professional" | "casual" | "humorous" | "serious";
+  authorStyle?: {
+    name: string;
+    writingStyle: string;
+    tone: string;
+    personality?: string;
+  };
 }): Promise<{ title: string; content: string; excerpt: string }> {
-  const { topic, category, tone = "professional" } = options;
+  const { topic, category, tone = "professional", authorStyle } = options;
 
-  const systemPrompt = `You are an expert newsletter writer. Create a single, focused article that is engaging and informative.
+  // Build system prompt based on whether we have an author style
+  let systemPrompt: string;
+  
+  if (authorStyle) {
+    systemPrompt = `You are writing as ${authorStyle.name}, a newsletter writer with a distinct voice and style.
+
+Your writing characteristics:
+- Writing Style: ${authorStyle.writingStyle}
+- Tone: ${authorStyle.tone}
+${authorStyle.personality ? `- Personality Traits: ${authorStyle.personality}` : ""}
+
+Writing guidelines:
+- Write 400-600 words
+- Use markdown formatting
+- Include clear headings
+- Make it scannable and engaging
+- Focus on providing value to readers
+- IMPORTANT: Embody the writing style, tone, and personality traits described above in every sentence`;
+  } else {
+    systemPrompt = `You are an expert newsletter writer. Create a single, focused article that is engaging and informative.
 
 Writing guidelines:
 - Use a ${tone} tone
@@ -175,6 +200,7 @@ Writing guidelines:
 - Include clear headings
 - Make it scannable and engaging
 - Focus on providing value to readers`;
+  }
 
   const userPrompt = `Write a newsletter article about: ${topic}
 ${category ? `Category: ${category}` : ""}
