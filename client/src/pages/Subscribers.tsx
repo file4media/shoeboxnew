@@ -148,17 +148,17 @@ export default function Subscribers() {
                 </TableHeader>
                 <TableBody>
                   {subscribers.map((subscriber) => (
-                    <TableRow key={subscriber.id}>
-                      <TableCell className="font-medium">{subscriber.email}</TableCell>
-                      <TableCell>{subscriber.name || "-"}</TableCell>
+                    <TableRow key={subscriber.subscriber.id}>
+                      <TableCell className="font-medium">{subscriber.subscriber.email}</TableCell>
+                      <TableCell>{subscriber.subscriber.name || "-"}</TableCell>
                       <TableCell>
-                        <Badge variant={subscriber.status === "active" ? "default" : "secondary"}>
-                          {subscriber.status}
+                        <Badge variant={subscriber.subscriber.status === "active" ? "default" : "secondary"}>
+                          {subscriber.subscriber.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={subscriber.subscriptionStatus === "subscribed" ? "default" : "secondary"}>
-                          {subscriber.subscriptionStatus}
+                        <Badge variant={subscriber.subscription.status === "subscribed" ? "default" : "secondary"}>
+                          {subscriber.subscription.status}
                         </Badge>
                       </TableCell>
                     </TableRow>

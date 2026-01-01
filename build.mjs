@@ -36,7 +36,7 @@ try {
 
   // Step 4: Run esbuild for server
   console.log('=== Running esbuild ===');
-  execSync('npx esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', {
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', {
     stdio: 'inherit'
   });
   console.log('✅ esbuild complete');

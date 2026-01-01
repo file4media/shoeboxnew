@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, email, name, role, loginMethod, passwordHash FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4PufQQ69u6sYoRs.a7bd064cfc75 --database DPvgxiKpotcgpg4R8zsbK7 --execute SELECT id, email, name, role, loginMethod, passwordHash FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "toddyace@gmail.com",
+      "name": "Ninja Spy",
+      "role": "admin",
+      "loginMethod": "google",
+      "passwordHash": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\tloginMethod\tpasswordHash\n1\ttoddyace@gmail.com\tNinja Spy\tadmin\tgoogle\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

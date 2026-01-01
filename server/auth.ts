@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { User } from "../drizzle/schema";
+import { User, users } from "../drizzle/schema";
 import * as db from "./db";
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -78,31 +78,28 @@ export async function registerUser(
   const passwordHash = await hashPassword(password);
 
   // Check if this is the first user (should be admin)
-  const allUsers = await db.getAllUsers();
+  const testDb = await db.getDb();
+  if (!testDb) {
+    throw new Error("Database not available");
+  }
+  
+  const allUsers = await testDb.select().from(users);
   const isFirstUser = allUsers.length === 0;
 
-  // Create user with a unique openId (using email as base)
-  const openId = `local_${email}_${Date.now()}`;
-  
-  await db.upsertUser({
-    openId,
+  // Create user
+  const userId = await db.createUser({
     email,
+    passwordHash,
     name: name || email.split("@")[0],
     loginMethod: "email",
     role: isFirstUser ? "admin" : "user",
     lastSignedIn: new Date(),
   });
 
-  const user = await db.getUserByOpenId(openId);
+  const user = await db.getUserById(userId);
   if (!user) {
     throw new Error("Failed to create user");
   }
-
-  // Update user with password hash
-  await db.upsertUser({
-    ...user,
-    passwordHash,
-  });
 
   return user;
 }
@@ -126,12 +123,9 @@ export async function loginUser(email: string, password: string): Promise<User |
   }
 
   // Update last signed in
-  await db.upsertUser({
-    ...user,
+  await db.updateUser(user.id, {
     lastSignedIn: new Date(),
   });
 
   return user;
 }
-
-

@@ -1,21 +1,14 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { publicProcedure, protectedProcedure, router } from "./trpc";
+import { COOKIE_NAME } from "@shared/const";
+import { getSessionCookieOptions } from "./_core/cookies";
+import { systemRouter } from "./_core/systemRouter";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import * as auth from "./auth";
-
-const COOKIE_NAME = "auth_token";
-
-function getCookieOptions(isProduction: boolean) {
-  return {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: "lax" as const,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  };
-}
+import * as standaloneAuth from "./standaloneAuth";
 
 export const appRouter = router({
+  system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
@@ -27,11 +20,11 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         try {
-          const user = await auth.registerUser(input.email, input.password, input.name);
-          const token = await auth.generateToken(user);
+          const user = await standaloneAuth.registerUser(input.email, input.password, input.name);
+          const token = await standaloneAuth.generateToken(user);
           
           // Set cookie
-          const cookieOptions = getCookieOptions(process.env.NODE_ENV === 'production');
+          const cookieOptions = getSessionCookieOptions(ctx.req);
           ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
           
           return { success: true, user };
@@ -49,7 +42,7 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const user = await auth.loginUser(input.email, input.password);
+        const user = await standaloneAuth.loginUser(input.email, input.password);
         if (!user) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -57,17 +50,17 @@ export const appRouter = router({
           });
         }
         
-        const token = await auth.generateToken(user);
+        const token = await standaloneAuth.generateToken(user);
         
         // Set cookie
-        const cookieOptions = getCookieOptions(process.env.NODE_ENV === 'production');
+        const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
         
         return { success: true, user };
       }),
     
     logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getCookieOptions(process.env.NODE_ENV === 'production');
+      const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return {
         success: true,
