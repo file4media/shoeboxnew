@@ -174,6 +174,51 @@ export type Article = typeof articles.$inferSelect;
 export type InsertArticle = typeof articles.$inferInsert;
 
 /**
+ * Newsletter sections table - modular content blocks for editions
+ * Replaces/enhances articles with more flexible section types
+ */
+export const newsletterSections = mysqlTable("newsletter_sections", {
+  id: int("id").autoincrement().primaryKey(),
+  editionId: int("editionId").notNull(),
+  // Section type determines layout and behavior
+  sectionType: mysqlEnum("sectionType", [
+    "header",      // Title + subtitle
+    "text",        // Rich text content
+    "article",     // Article card with image
+    "quote",       // Blockquote
+    "image",       // Full-width image
+    "cta",         // Call-to-action button
+    "divider",     // Visual separator
+    "list",        // Bullet/numbered list
+    "code",        // Code snippet
+    "video",       // Embedded video
+  ]).notNull(),
+  // Content fields (flexible based on section type)
+  title: varchar("title", { length: 500 }),
+  subtitle: text("subtitle"),
+  content: text("content"),
+  imageUrl: text("imageUrl"),
+  imageCaption: varchar("imageCaption", { length: 255 }),
+  buttonText: varchar("buttonText", { length: 100 }),
+  buttonUrl: text("buttonUrl"),
+  // AI generation metadata
+  aiGenerated: boolean("aiGenerated").default(false).notNull(),
+  aiPrompt: text("aiPrompt"),
+  // Ordering and display
+  displayOrder: int("displayOrder").default(0).notNull(),
+  isVisible: boolean("isVisible").default(true).notNull(),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  editionIdIdx: index("editionId_idx").on(table.editionId),
+  displayOrderIdx: index("displayOrder_idx").on(table.editionId, table.displayOrder),
+}));
+
+export type NewsletterSection = typeof newsletterSections.$inferSelect;
+export type InsertNewsletterSection = typeof newsletterSections.$inferInsert;
+
+/**
  * Scheduled jobs table - tracks automated email sends
  */
 export const scheduledJobs = mysqlTable("scheduled_jobs", {

@@ -175,3 +175,18 @@ PORT=3000
 - [ ] Fix Claude model name - current model "claude-3-5-sonnet-20241022" returns 404
 - [ ] Update to valid model like "claude-3-5-sonnet-20241022" or "claude-3-opus-20240229"
 - [ ] Test AI content generation
+
+
+## 🎨 NEW FEATURE: Modular Newsletter Sections
+
+- [x] Update database schema - add `newsletter_sections` table
+- [x] Add section types (header, content, image, cta, divider, etc.)
+- [x] Add orderIndex field for drag-and-drop positioning
+- [x] Create backend API for section CRUD operations
+- [x] Add AI generation endpoint for individual sections
+- [ ] Build section editor UI with drag-and-drop (using @dnd-kit)
+- [ ] Add section templates (pre-designed layouts)
+- [ ] Update email template to render sections dynamically
+- [ ] Test section reordering
+- [ ] Test AI generation per section
+- [ ] Test email rendering with multiple sections

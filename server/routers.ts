@@ -610,6 +610,227 @@ export const appRouter = router({
       }),
   }),
 
+  sections: router({
+    list: protectedProcedure
+      .input(z.object({ editionId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const { getSectionsByEdition } = await import("./sectionsDb");
+        const { getEditionById } = await import("./db");
+        const edition = await getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const { getNewsletterById } = await import("./db");
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return getSectionsByEdition(input.editionId);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        sectionType: z.enum(["header", "text", "article", "quote", "image", "cta", "divider", "list", "code", "video"]),
+        title: z.string().optional(),
+        subtitle: z.string().optional(),
+        content: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageCaption: z.string().optional(),
+        buttonText: z.string().optional(),
+        buttonUrl: z.string().optional(),
+        displayOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { createSection } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const edition = await getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return createSection(input);
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        subtitle: z.string().optional(),
+        content: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageCaption: z.string().optional(),
+        buttonText: z.string().optional(),
+        buttonUrl: z.string().optional(),
+        isVisible: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { updateSection, getSectionById } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const section = await getSectionById(input.id);
+        if (!section) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+        }
+        const edition = await getEditionById(section.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        const { id, ...updateData } = input;
+        return updateSection(id, updateData);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const { deleteSection, getSectionById } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const section = await getSectionById(input.id);
+        if (!section) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+        }
+        const edition = await getEditionById(section.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await deleteSection(input.id);
+        return { success: true };
+      }),
+
+    reorder: protectedProcedure
+      .input(z.object({
+        updates: z.array(z.object({
+          id: z.number(),
+          displayOrder: z.number(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { reorderSections, getSectionById } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        // Verify ownership of first section (assumes all sections belong to same edition)
+        if (input.updates.length > 0) {
+          const section = await getSectionById(input.updates[0].id);
+          if (!section) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+          }
+          const edition = await getEditionById(section.editionId);
+          if (!edition) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+          }
+          const newsletter = await getNewsletterById(edition.newsletterId);
+          if (!newsletter || newsletter.userId !== ctx.user.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+          }
+        }
+        await reorderSections(input.updates);
+        return { success: true };
+      }),
+
+    duplicate: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const { duplicateSection, getSectionById } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const section = await getSectionById(input.id);
+        if (!section) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+        }
+        const edition = await getEditionById(section.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return duplicateSection(input.id);
+      }),
+
+    generateWithAI: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        sectionType: z.enum(["header", "text", "article", "quote", "cta", "list"]),
+        prompt: z.string(),
+        tone: z.enum(["professional", "casual", "friendly", "formal"]).optional(),
+        length: z.enum(["short", "medium", "long"]).optional(),
+        context: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { generateSectionContent } = await import("./sectionAI");
+        const { createSection } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const edition = await getEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        
+        // Generate content with AI
+        const generated = await generateSectionContent({
+          sectionType: input.sectionType,
+          prompt: input.prompt,
+          tone: input.tone,
+          length: input.length,
+          context: input.context,
+        });
+        
+        // Create section with generated content
+        const section = await createSection({
+          editionId: input.editionId,
+          sectionType: input.sectionType,
+          ...generated,
+          aiGenerated: true,
+          aiPrompt: input.prompt,
+          displayOrder: 999, // Will be reordered by user
+        });
+        
+        return section;
+      }),
+
+    improveWithAI: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        instructions: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { improveSectionContent } = await import("./sectionAI");
+        const { updateSection, getSectionById } = await import("./sectionsDb");
+        const { getEditionById, getNewsletterById } = await import("./db");
+        const section = await getSectionById(input.id);
+        if (!section) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+        }
+        const edition = await getEditionById(section.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        
+        const improvedContent = await improveSectionContent(
+          section.content || "",
+          input.instructions
+        );
+        
+        return updateSection(input.id, { content: improvedContent });
+      }),
+  }),
+
   tracking: router({
     recordOpen: publicProcedure
       .input(z.object({
