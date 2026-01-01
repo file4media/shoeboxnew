@@ -22,7 +22,7 @@ export async function callClaude(
   }
 ): Promise<string> {
   const response = await anthropic.messages.create({
-    model: options?.model || "claude-3-opus-20240229",
+    model: options?.model || "claude-3-haiku-20240307",
     max_tokens: options?.maxTokens || 4096,
     temperature: options?.temperature || 1.0,
     system: options?.system,
