@@ -43,6 +43,27 @@ try {
   console.log('');
 
   console.log('=== Build Complete ===');
+  
+  // Final verification - list all files that will be deployed
+  console.log('\n=== FINAL FILE LISTING ===');
+  console.log('Files in dist/public:');
+  if (existsSync(distPublic)) {
+    const publicFiles = readdirSync(distPublic);
+    publicFiles.forEach(file => console.log(`  ${file}`));
+  }
+  console.log('\nFiles in dist/public/assets:');
+  if (existsSync(assetsDir)) {
+    const assetFiles = readdirSync(assetsDir);
+    assetFiles.forEach(file => console.log(`  ${file}`));
+  }
+  console.log('\nFiles in dist (root):');
+  const distRoot = resolve(process.cwd(), 'dist');
+  if (existsSync(distRoot)) {
+    const distFiles = readdirSync(distRoot);
+    distFiles.forEach(file => console.log(`  ${file}`));
+  }
+  console.log('=========================\n');
+  
   process.exit(0);
 } catch (error) {
   console.error('❌ Build failed:');
