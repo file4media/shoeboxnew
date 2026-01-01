@@ -10,6 +10,7 @@ import NewsletterDetail from "./pages/NewsletterDetail";
 import EditionEditor from "./pages/EditionEditor";
 import Subscribers from "./pages/Subscribers";
 import Analytics from "./pages/Analytics";
+import ArticleView from "./pages/ArticleView";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/newsletters/:newsletterId/editions/:editionId"} component={EditionEditor} />
       <Route path={"/newsletters/:id/subscribers"} component={Subscribers} />
       <Route path={"/newsletters/:id/analytics"} component={Analytics} />
+      <Route path={"/edition/:editionId/article/:articleSlug"} component={ArticleView} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

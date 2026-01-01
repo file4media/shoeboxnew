@@ -15,6 +15,13 @@
       "when": 1767225055288,
       "tag": "0001_orange_molly_hayes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1767229011346,
+      "tag": "0002_faithful_red_hulk",
+      "breakpoints": true
     }
   ]
 }

@@ -87,11 +87,14 @@ export const newsletterEditions = mysqlTable("newsletter_editions", {
   newsletterId: int("newsletterId").notNull(),
   subject: varchar("subject", { length: 500 }).notNull(),
   previewText: varchar("previewText", { length: 500 }),
-  // Content stored as markdown and HTML
+  // Intro text that appears before articles
+  introText: text("introText"),
+  // Legacy content fields (kept for backward compatibility)
   contentMarkdown: text("contentMarkdown"),
   contentHtml: text("contentHtml"),
+  // Publishing
   status: mysqlEnum("status", ["draft", "scheduled", "sending", "sent", "failed"]).default("draft").notNull(),
-  scheduledAt: timestamp("scheduledAt"),
+  scheduledFor: timestamp("scheduledFor"),
   sentAt: timestamp("sentAt"),
   // Statistics
   totalRecipients: int("totalRecipients").default(0).notNull(),
@@ -102,6 +105,7 @@ export const newsletterEditions = mysqlTable("newsletter_editions", {
 }, (table) => ({
   newsletterIdIdx: index("newsletterId_idx").on(table.newsletterId),
   statusIdx: index("status_idx").on(table.status),
+  scheduledForIdx: index("scheduledFor_idx").on(table.scheduledFor),
 }));
 
 export type NewsletterEdition = typeof newsletterEditions.$inferSelect;
@@ -131,3 +135,33 @@ export const emailTracking = mysqlTable("email_tracking", {
 
 export type EmailTracking = typeof emailTracking.$inferSelect;
 export type InsertEmailTracking = typeof emailTracking.$inferInsert;
+
+/**
+ * Articles table - individual article cards within an edition
+ */
+export const articles = mysqlTable("articles", {
+  id: int("id").autoincrement().primaryKey(),
+  editionId: int("editionId").notNull(),
+  // Article metadata
+  category: varchar("category", { length: 100 }),
+  title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull(),
+  // Content
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  imageUrl: text("imageUrl"),
+  imageCaption: varchar("imageCaption", { length: 255 }),
+  // Ordering
+  displayOrder: int("displayOrder").default(0).notNull(),
+  // Publishing
+  isPublished: boolean("isPublished").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  editionIdIdx: index("editionId_idx").on(table.editionId),
+  slugIdx: index("slug_idx").on(table.slug),
+  editionSlugIdx: index("edition_slug_idx").on(table.editionId, table.slug),
+}));
+
+export type Article = typeof articles.$inferSelect;
+export type InsertArticle = typeof articles.$inferInsert;

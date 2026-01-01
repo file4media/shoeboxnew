@@ -63,3 +63,16 @@
 - [x] Create Railway deployment configuration
 - [x] Document GitHub repository setup process
 - [ ] Test deployment process (requires user to deploy)
+
+## Card-Based Article System Refactor
+- [x] Create articles table (id, editionId, category, title, content, excerpt, imageUrl, order, slug, createdAt)
+- [x] Add scheduledFor field to newsletter_editions table
+- [x] Update edition to support multiple articles instead of single content block
+- [x] Build article CRUD endpoints (create, update, delete, reorder)
+- [x] Build article management UI with card-based editor
+- [x] Create Morning Brew-style email template with article cards
+- [x] Implement 500-600 word truncation for email previews
+- [x] Create public frontend routes for full article display (/newsletter/:slug/article/:articleSlug)
+- [ ] Add scheduling system for editions (cron job or manual trigger)
+- [x] Design email footer with social links and unsubscribe
+- [x] Test complete article workflow (create, email, view on site)

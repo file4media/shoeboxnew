@@ -17,7 +17,10 @@ import {
   InsertNewsletterEdition,
   emailTracking,
   EmailTracking,
-  InsertEmailTracking
+  InsertEmailTracking,
+  articles,
+  Article,
+  InsertArticle
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -437,4 +440,71 @@ export async function getNewsletterAnalytics(newsletterId: number) {
     totalOpens,
     recentEditions,
   };
+}
+
+// ============ Article Functions ============
+
+export async function createArticle(article: InsertArticle): Promise<Article> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const inserted = await db.insert(articles).values(article);
+  const result = await db.select().from(articles).where(eq(articles.id, Number(inserted[0].insertId))).limit(1);
+  
+  return result[0]!;
+}
+
+export async function getArticlesByEdition(editionId: number): Promise<Article[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(articles).where(eq(articles.editionId, editionId)).orderBy(articles.displayOrder);
+}
+
+export async function getArticleById(id: number): Promise<Article | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getArticleBySlug(editionId: number, slug: string): Promise<Article | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.editionId, editionId), eq(articles.slug, slug)))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function updateArticle(id: number, updates: Partial<InsertArticle>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(articles).set(updates).where(eq(articles.id, id));
+}
+
+export async function deleteArticle(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(articles).where(eq(articles.id, id));
+}
+
+export async function reorderArticles(editionId: number, articleIds: number[]): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Update display order for each article
+  for (let i = 0; i < articleIds.length; i++) {
+    await db
+      .update(articles)
+      .set({ displayOrder: i })
+      .where(and(eq(articles.id, articleIds[i]!), eq(articles.editionId, editionId)));
+  }
 }

@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
 import * as db from "./db";
+import { generateEmailHtml } from "./emailTemplate";
 
 let resendClient: Resend | null = null;
 
@@ -77,22 +78,28 @@ export async function sendNewsletterEdition(editionId: number, baseUrl: string) 
       try {
         // Generate unique tracking token
         const trackingToken = nanoid(32);
-        
-        // Create tracking record
+                // Create tracking record
         await db.createEmailTracking({
-          editionId,
+          editionId: edition.id,
           subscriberId: subscriber.id,
           trackingToken,
-          openCount: 0,
         });
 
         // Generate tracking pixel URL
         const trackingPixelUrl = generateTrackingPixelUrl(trackingToken, baseUrl);
-        
-        // Embed tracking pixel in HTML content
-        const htmlWithTracking = edition.contentHtml
-          ? embedTrackingPixel(edition.contentHtml, trackingPixelUrl)
-          : `<html><body>${edition.contentMarkdown || ""}<br/><img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" /></body></html>`;
+
+        // Get articles for this edition
+        const articles = await db.getArticlesByEdition(edition.id);
+
+        // Generate HTML email with card-based template
+        const htmlWithTracking = generateEmailHtml(
+          newsletter,
+          edition,
+          articles,
+          trackingPixelUrl,
+          baseUrl,
+          subscriber.id
+        );
 
         // Send email via Resend
         await resend.emails.send({
@@ -151,9 +158,18 @@ export async function sendTestEmail(
   const trackingToken = nanoid(32);
   const trackingPixelUrl = generateTrackingPixelUrl(trackingToken, baseUrl);
   
-  const htmlWithTracking = edition.contentHtml
-    ? embedTrackingPixel(edition.contentHtml, trackingPixelUrl)
-    : `<html><body>${edition.contentMarkdown || ""}<br/><img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" /></body></html>`;
+  // Get articles for this edition
+  const articles = await db.getArticlesByEdition(edition.id);
+
+  // Generate HTML email with card-based template (use dummy subscriber ID for test)
+  const htmlWithTracking = generateEmailHtml(
+    newsletter,
+    edition,
+    articles,
+    trackingPixelUrl,
+    baseUrl,
+    0 // dummy subscriber ID for test emails
+  );
 
   await resend.emails.send({
     from: `${newsletter.fromName} <${newsletter.fromEmail}>`,

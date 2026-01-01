@@ -257,10 +257,12 @@ export const appRouter = router({
         id: z.number(),
         subject: z.string().optional(),
         previewText: z.string().optional(),
+        introText: z.string().optional(),
         contentMarkdown: z.string().optional(),
         contentHtml: z.string().optional(),
         status: z.enum(["draft", "scheduled", "sending", "sent", "failed"]).optional(),
         scheduledAt: z.date().optional(),
+        scheduledFor: z.date().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { id, ...updates } = input;
@@ -409,6 +411,132 @@ export const appRouter = router({
         }
         const { sendTestEmail } = await import("./email");
         return sendTestEmail(input.editionId, input.testEmail, input.baseUrl);
+      }),
+  }),
+
+  articles: router({
+    create: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        category: z.string().optional(),
+        title: z.string().min(1),
+        slug: z.string().min(1),
+        content: z.string().min(1),
+        excerpt: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageCaption: z.string().optional(),
+        displayOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const edition = await db.getNewsletterEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return db.createArticle(input);
+      }),
+
+    list: protectedProcedure
+      .input(z.object({ editionId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const edition = await db.getNewsletterEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return db.getArticlesByEdition(input.editionId);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const article = await db.getArticleById(input.id);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        const edition = await db.getNewsletterEditionById(article.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        return article;
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        category: z.string().optional(),
+        title: z.string().optional(),
+        slug: z.string().optional(),
+        content: z.string().optional(),
+        excerpt: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageCaption: z.string().optional(),
+        displayOrder: z.number().optional(),
+        isPublished: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...updates } = input;
+        const article = await db.getArticleById(id);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        const edition = await db.getNewsletterEditionById(article.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await db.updateArticle(id, updates);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const article = await db.getArticleById(input.id);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        const edition = await db.getNewsletterEditionById(article.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await db.deleteArticle(input.id);
+        return { success: true };
+      }),
+
+    reorder: protectedProcedure
+      .input(z.object({
+        editionId: z.number(),
+        articleIds: z.array(z.number()),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const edition = await db.getNewsletterEditionById(input.editionId);
+        if (!edition) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Edition not found" });
+        }
+        const newsletter = await db.getNewsletterById(edition.newsletterId);
+        if (!newsletter || newsletter.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        await db.reorderArticles(input.editionId, input.articleIds);
+        return { success: true };
       }),
   }),
 
