@@ -378,4 +378,16 @@ PORT=3000
 - [x] Add delete button to newsletter cards with confirmation dialog
 - [x] Add delete button to edition list with confirmation dialog
 - [x] Test delete functionality
-- [ ] Push to GitHub
+- [x] Push to GitHub
+
+
+## 🎨 Fix Email Templates
+
+**Issue**: Only Morning Brew template shows AI articles and content. Other templates (Minimalist, Bold, Magazine) don't render articles.
+
+- [x] Investigate email template rendering code
+- [x] Fix Minimalist template to show articles
+- [x] Fix Bold template to show articles
+- [x] Fix Magazine template to show articles
+- [x] Test all templates with preview
+- [ ] Save checkpoint and push to GitHub

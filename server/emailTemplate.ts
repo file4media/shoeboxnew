@@ -224,7 +224,10 @@ export function generateMinimalistTemplate(
 ): string {
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  const articleCardsHtml = articles
+  // Render sections if available, otherwise fall back to articles
+  const contentHtml = sections.length > 0
+    ? renderSections(sections, "#111827")
+    : articles
     .map((article) => {
       const truncatedContent = truncateToWords(article.content, 100);
       const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
@@ -281,10 +284,10 @@ export function generateMinimalistTemplate(
           </tr>
           ` : ""}
 
-          <!-- Articles -->
+          <!-- Content (Articles or Sections) -->
           <tr>
             <td>
-              ${articleCardsHtml}
+              ${contentHtml}
             </td>
           </tr>
 
@@ -327,7 +330,10 @@ export function generateBoldTemplate(
   const primaryColor = newsletter.primaryColor || "#ff6b35";
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  const articleCardsHtml = articles
+  // Render sections if available, otherwise fall back to articles
+  const contentHtml = sections.length > 0
+    ? renderSections(sections, primaryColor)
+    : articles
     .map((article) => {
       const truncatedContent = truncateToWords(article.content, 100);
       const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
@@ -386,10 +392,10 @@ export function generateBoldTemplate(
           </tr>
           ` : ""}
 
-          <!-- Articles -->
+          <!-- Content (Articles or Sections) -->
           <tr>
             <td style="padding: 40px;">
-              ${articleCardsHtml}
+              ${contentHtml}
             </td>
           </tr>
 
@@ -432,7 +438,10 @@ export function generateMagazineTemplate(
   const primaryColor = newsletter.primaryColor || "#dc2626";
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  const articleCardsHtml = articles
+  // Render sections if available, otherwise fall back to articles
+  const contentHtml = sections.length > 0
+    ? renderSections(sections, primaryColor)
+    : articles
     .map((article, index) => {
       const truncatedContent = truncateToWords(article.content, 80);
       const articleUrl = generateArticleUrl(baseUrl, edition.id, article.slug);
@@ -528,10 +537,10 @@ export function generateMagazineTemplate(
           </tr>
           ` : ""}
 
-          <!-- Articles -->
+          <!-- Content (Articles or Sections) -->
           <tr>
             <td style="padding: 40px;">
-              ${articleCardsHtml}
+              ${contentHtml}
             </td>
           </tr>
 
