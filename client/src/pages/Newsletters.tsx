@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { Mail, Plus, Settings, Users, BarChart3, Loader2, Home, LogOut } from "lucide-react";
+import { Mail, Plus, Settings, Users, BarChart3, Loader2, Home, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -45,6 +45,18 @@ export default function Newsletters() {
       toast.error(error.message);
     },
   });
+
+  const deleteMutation = trpc.newsletters.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Newsletter deleted successfully");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   if (authLoading) {
     return (
@@ -193,6 +205,17 @@ export default function Newsletters() {
                         <BarChart3 className="mr-1 h-3 w-3" />
                         Analytics
                       </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setDeleteConfirmId(newsletter.id);
+                        }}
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -215,6 +238,36 @@ export default function Newsletters() {
           </Card>
         )}
       </main>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Newsletter</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this newsletter? This will permanently delete all editions, articles, and subscribers associated with it. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (deleteConfirmId) {
+                  deleteMutation.mutate({ id: deleteConfirmId });
+                  setDeleteConfirmId(null);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { ArrowLeft, FileText, Plus, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, FileText, Plus, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { toast } from "sonner";
@@ -42,6 +42,18 @@ export default function NewsletterDetail() {
       toast.error(error.message);
     },
   });
+
+  const deleteMutation = trpc.editions.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Edition deleted successfully");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   if (authLoading || newsletterLoading) {
     return (
@@ -173,7 +185,7 @@ export default function NewsletterDetail() {
                 </CardHeader>
                 <CardContent>
                   {edition.status === "sent" && (
-                    <div className="text-sm space-y-1">
+                    <div className="text-sm space-y-1 mb-4">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Recipients:</span>
                         <span className="font-medium">{edition.totalRecipients}</span>
@@ -184,6 +196,18 @@ export default function NewsletterDetail() {
                       </div>
                     </div>
                   )}
+                  <Button 
+                    size="sm" 
+                    variant="destructive" 
+                    className="w-full"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setDeleteConfirmId(edition.id);
+                    }}
+                  >
+                    <Trash2 className="mr-2 h-3 w-3" />
+                    Delete Edition
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -204,6 +228,36 @@ export default function NewsletterDetail() {
           </Card>
         )}
       </main>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Edition</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this edition? This will permanently delete all content and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (deleteConfirmId) {
+                  deleteMutation.mutate({ id: deleteConfirmId });
+                  setDeleteConfirmId(null);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

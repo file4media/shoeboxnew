@@ -365,5 +365,17 @@ PORT=3000
 - [x] Fix function call in getPreviewHtml endpoint
 - [x] Add proper error logging to see exact error
 - [x] Create missing getEditionArticles and getEditionSections functions
-- [ ] Test email preview works
-- [ ] Push fix to GitHub
+- [x] Test email preview works
+- [x] Push fix to GitHub
+
+
+## 🗑️ Add Delete Functionality
+
+**Requirements**: Add ability to delete newsletters and editions with confirmation
+
+- [x] Add delete endpoint for newsletters in backend
+- [x] Add delete endpoint for editions in backend
+- [x] Add delete button to newsletter cards with confirmation dialog
+- [x] Add delete button to edition list with confirmation dialog
+- [x] Test delete functionality
+- [ ] Push to GitHub
