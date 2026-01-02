@@ -40,6 +40,16 @@ export function GenerateSectionDialog({
   const [tone, setTone] = useState<string>("professional");
   const [length, setLength] = useState<string>("medium");
   const [context, setContext] = useState("");
+  const [authorId, setAuthorId] = useState<number | undefined>(undefined);
+
+  // Get edition to find newsletterId
+  const { data: edition } = trpc.editions.getById.useQuery({ id: editionId }, { enabled: open });
+  
+  // Get authors for this newsletter
+  const { data: authors } = trpc.authors.list.useQuery(
+    { newsletterId: edition?.newsletterId || 0 },
+    { enabled: !!edition?.newsletterId && open }
+  );
 
   const generateMutation = trpc.sections.generateWithAI.useMutation({
     onSuccess: () => {
@@ -49,6 +59,7 @@ export function GenerateSectionDialog({
       // Reset form
       setPrompt("");
       setContext("");
+      setAuthorId(undefined);
     },
     onError: (error) => {
       toast.error(`Failed to generate: ${error.message}`);
@@ -68,6 +79,7 @@ export function GenerateSectionDialog({
       tone: tone as any,
       length: length as any,
       context: context || undefined,
+      authorId: authorId,
     });
   };
 
@@ -112,6 +124,25 @@ export function GenerateSectionDialog({
               rows={3}
             />
           </div>
+
+          {authors && authors.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="author">Author / Writing Style (Optional)</Label>
+              <Select value={authorId?.toString() || "none"} onValueChange={(val) => setAuthorId(val === "none" ? undefined : parseInt(val))}>
+                <SelectTrigger id="author">
+                  <SelectValue placeholder="Default style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Default style</SelectItem>
+                  {authors.map(author => (
+                    <SelectItem key={author.id} value={author.id.toString()}>
+                      {author.name} ({author.tone})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

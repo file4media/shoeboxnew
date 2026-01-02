@@ -449,3 +449,14 @@ PORT=3000
 - [x] Test calendar with multiple scheduled editions
 - [x] Test navigation from calendar to edition editor
 - [x] Save checkpoint
+
+
+## ✍️ Add Author Selector to AI Generation
+
+**Issue**: When generating AI content, there's no way to select which author/persona to use
+
+- [x] Add author dropdown to AI generation dialog
+- [x] Fetch authors for current newsletter
+- [x] Pass selected author to generation endpoint
+- [x] Test AI generation with different authors
+- [x] Save checkpoint

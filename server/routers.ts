@@ -955,6 +955,7 @@ export const appRouter = router({
         tone: z.enum(["professional", "casual", "friendly", "formal"]).optional(),
         length: z.enum(["short", "medium", "long"]).optional(),
         context: z.string().optional(),
+        authorId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { generateSectionContent } = await import("./sectionAI");
@@ -969,13 +970,23 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
         
+        // Get author style if authorId is provided
+        let authorContext = "";
+        if (input.authorId) {
+          const { getAuthorById } = await import("./authorsDb");
+          const author = await getAuthorById(input.authorId);
+          if (author && author.newsletterId === edition.newsletterId) {
+            authorContext = `\n\nWrite in the style of ${author.name}: ${author.writingStyle}. Tone: ${author.tone}. ${author.personality ? `Personality: ${author.personality}` : ""}`;
+          }
+        }
+        
         // Generate content with AI
         const generated = await generateSectionContent({
           sectionType: input.sectionType,
           prompt: input.prompt,
           tone: input.tone,
           length: input.length,
-          context: input.context,
+          context: (input.context || "") + authorContext,
         });
         
         // Create section with generated content
