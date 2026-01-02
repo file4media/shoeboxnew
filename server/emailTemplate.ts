@@ -330,8 +330,9 @@ export function generateBoldTemplate(
   const primaryColor = newsletter.primaryColor || "#ff6b35";
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  // Render sections if available, otherwise fall back to articles
-  const contentHtml = sections.length > 0
+  // Render sections if available AND have content, otherwise fall back to articles
+  const hasVisibleSections = sections.some(s => s.isVisible && (s.content || s.title));
+  const contentHtml = hasVisibleSections
     ? renderSections(sections, primaryColor)
     : articles
     .map((article) => {
@@ -438,8 +439,9 @@ export function generateMagazineTemplate(
   const primaryColor = newsletter.primaryColor || "#dc2626";
   const unsubscribeUrl = generateUnsubscribeUrl(baseUrl, subscriberId, newsletter.id);
 
-  // Render sections if available, otherwise fall back to articles
-  const contentHtml = sections.length > 0
+  // Render sections if available AND have content, otherwise fall back to articles
+  const hasVisibleSections = sections.some(s => s.isVisible && (s.content || s.title));
+  const contentHtml = hasVisibleSections
     ? renderSections(sections, primaryColor)
     : articles
     .map((article, index) => {

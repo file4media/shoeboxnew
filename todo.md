@@ -460,3 +460,14 @@ PORT=3000
 - [x] Pass selected author to generation endpoint
 - [x] Test AI generation with different authors
 - [x] Save checkpoint
+
+
+## 🐛 Fix Email Preview Not Showing Articles
+
+**Issue**: Email preview shows empty content, articles not rendering in Magazine template
+
+- [x] Check getPreviewHtml endpoint
+- [x] Verify sections are being fetched correctly
+- [x] Check Magazine template rendering logic - fixed to check if sections have content
+- [x] Test preview with all templates
+- [ ] Save checkpoint
