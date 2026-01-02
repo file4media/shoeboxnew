@@ -340,6 +340,7 @@ export const appRouter = router({
         contentMarkdown: z.string().optional(),
         contentHtml: z.string().optional(),
         templateStyle: z.enum(["morning-brew", "minimalist", "bold", "magazine"]).optional(),
+        templateSettings: z.string().optional(),
         status: z.enum(["draft", "scheduled", "sending", "sent", "failed"]).optional(),
         scheduledAt: z.date().optional(),
         scheduledFor: z.date().optional(),

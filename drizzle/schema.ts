@@ -99,6 +99,8 @@ export const newsletterEditions = mysqlTable("newsletter_editions", {
   contentHtml: text("contentHtml"),
   // Template style
   templateStyle: mysqlEnum("templateStyle", ["morning-brew", "minimalist", "bold", "magazine"]).default("morning-brew").notNull(),
+  // Template-specific settings (JSON)
+  templateSettings: text("templateSettings"),
   // Publishing
   status: mysqlEnum("status", ["draft", "scheduled", "sending", "sent", "failed"]).default("draft").notNull(),
   scheduledFor: timestamp("scheduledFor"),

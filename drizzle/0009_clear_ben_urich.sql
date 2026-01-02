@@ -1,0 +1,1 @@
+ALTER TABLE `newsletter_editions` ADD `templateSettings` text;

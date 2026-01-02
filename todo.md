@@ -390,4 +390,33 @@ PORT=3000
 - [x] Fix Bold template to show articles
 - [x] Fix Magazine template to show articles
 - [x] Test all templates with preview
-- [ ] Save checkpoint and push to GitHub
+- [x] Save checkpoint and push to GitHub
+
+
+## 🎨 Template Preview Selector & Settings
+
+**Goal**: Add template preview dropdown and template-specific settings to edition editor
+
+### Phase 1: Database & Backend
+- [x] Add `emailTemplate` field to newsletter_editions table (morning_brew, minimalist, bold, magazine) - already exists as templateStyle
+- [x] Add `templateSettings` JSON field to newsletter_editions table
+- [x] Update edition creation/update endpoints
+- [x] Update getPreviewHtml to use selected template
+
+### Phase 2: Template Selector UI
+- [x] Add template dropdown to EditionEditor - already exists
+- [x] Show template preview thumbnails/descriptions - already exists
+- [x] Update email preview to use selected template - already working
+- [x] Save template selection with edition - already working
+
+### Phase 3: Template-Specific Settings
+- [x] Add "Featured Article" toggle for Magazine template
+- [x] Add "Show Category Badges" toggle for Morning Brew template
+- [x] Add settings panel that shows/hides based on selected template
+- [x] Pass settings to email template generation - templateSettings added to backend
+
+### Phase 4: Testing & Deployment
+- [x] Test all templates with preview
+- [x] Test template-specific settings
+- [ ] Save checkpoint
+- [ ] Push to GitHub

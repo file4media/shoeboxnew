@@ -26,6 +26,10 @@ export function EditionEditor() {
   const [introText, setIntroText] = useState("");
   const [scheduledFor, setScheduledFor] = useState("");
   const [templateStyle, setTemplateStyle] = useState<"morning-brew" | "minimalist" | "bold" | "magazine">("morning-brew");
+  const [templateSettings, setTemplateSettings] = useState<{
+    showCategoryBadges?: boolean;
+    featuredArticle?: boolean;
+  }>({});
   const [showPreview, setShowPreview] = useState(false);
 
   const { data: edition, isLoading: editionLoading } = trpc.editions.getById.useQuery(
@@ -48,6 +52,14 @@ export function EditionEditor() {
       setIntroText(edition.introText || "");
       setScheduledFor(edition.scheduledFor ? new Date(edition.scheduledFor).toISOString().slice(0, 16) : "");
       setTemplateStyle(edition.templateStyle || "morning-brew");
+      // Parse template settings from JSON
+      if (edition.templateSettings) {
+        try {
+          setTemplateSettings(JSON.parse(edition.templateSettings));
+        } catch (e) {
+          setTemplateSettings({});
+        }
+      }
     }
   }, [edition]);
 
@@ -81,6 +93,7 @@ export function EditionEditor() {
       subject,
       introText,
       templateStyle,
+      templateSettings: JSON.stringify(templateSettings),
       scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
     });
   };
@@ -157,6 +170,44 @@ export function EditionEditor() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Template-Specific Settings */}
+            {templateStyle === "morning-brew" && (
+              <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded">
+                <Label className="text-sm font-semibold text-blue-900 mb-2 block">Morning Brew Settings</Label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="showCategoryBadges"
+                    checked={templateSettings.showCategoryBadges !== false}
+                    onChange={(e) => setTemplateSettings({ ...templateSettings, showCategoryBadges: e.target.checked })}
+                    className="rounded"
+                  />
+                  <label htmlFor="showCategoryBadges" className="text-sm text-gray-700">
+                    Show category badges on articles
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {templateStyle === "magazine" && (
+              <div className="border-l-4 border-red-500 pl-4 py-2 bg-red-50 rounded">
+                <Label className="text-sm font-semibold text-red-900 mb-2 block">Magazine Settings</Label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="featuredArticle"
+                    checked={templateSettings.featuredArticle !== false}
+                    onChange={(e) => setTemplateSettings({ ...templateSettings, featuredArticle: e.target.checked })}
+                    className="rounded"
+                  />
+                  <label htmlFor="featuredArticle" className="text-sm text-gray-700">
+                    Feature first article with large image
+                  </label>
+                </div>
+              </div>
+            )}
+
             <div>
               <Label htmlFor="scheduledFor">Schedule Send (optional)</Label>
               <Input
