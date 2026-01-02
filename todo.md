@@ -418,5 +418,34 @@ PORT=3000
 ### Phase 4: Testing & Deployment
 - [x] Test all templates with preview
 - [x] Test template-specific settings
-- [ ] Save checkpoint
-- [ ] Push to GitHub
+- [x] Save checkpoint
+- [x] Push to GitHub
+
+
+## 🔙 Add Back Button to Authors Page
+
+**Issue**: Authors page (/newsletters/:id/authors) has no back button to return to newsletter
+
+- [x] Add back button to Authors page header
+- [x] Test navigation flow
+- [x] Save checkpoint
+
+## 📅 Scheduled Send Calendar View
+
+**Goal**: Add calendar interface showing all scheduled editions across newsletters
+
+### Phase 1: Backend & Component
+- [x] Create backend endpoint to fetch all scheduled editions
+- [x] Install calendar library (react-big-calendar or similar) - used custom implementation
+- [x] Create Calendar component with month/week views
+- [x] Display editions on calendar with newsletter colors
+
+### Phase 2: Navigation & Routes
+- [x] Add Calendar page route
+- [x] Add Calendar link to main navigation
+- [x] Add click handlers to view/edit editions from calendar
+
+### Phase 3: Testing
+- [x] Test calendar with multiple scheduled editions
+- [x] Test navigation from calendar to edition editor
+- [x] Save checkpoint

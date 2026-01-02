@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { Mail, Plus, Settings, Users, BarChart3, Loader2, Home, LogOut, Trash2 } from "lucide-react";
+import { Mail, Plus, Settings, Users, BarChart3, Loader2, Home, LogOut, Trash2, Calendar } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -90,6 +90,10 @@ export default function Newsletters() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="ghost" size="sm" onClick={() => setLocation("/calendar")}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Calendar
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => setLocation("/")}>
                 <Home className="h-4 w-4 mr-2" />
                 Home

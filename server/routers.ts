@@ -298,6 +298,33 @@ export const appRouter = router({
         return db.getEditionsByNewsletterId(input.newsletterId);
       }),
 
+    getScheduledEditions: protectedProcedure
+      .query(async ({ ctx }) => {
+        // Get all newsletters for this user
+        const newsletters = await db.getNewslettersByUserId(ctx.user.id);
+        const newsletterIds = newsletters.map(n => n.id);
+        
+        // Get all editions for these newsletters
+        const allEditions = await Promise.all(
+          newsletterIds.map(id => db.getEditionsByNewsletterId(id))
+        );
+        
+        // Flatten and filter for scheduled editions
+        const scheduledEditions = allEditions
+          .flat()
+          .filter(e => e.scheduledFor && (e.status === 'scheduled' || e.status === 'draft'))
+          .map(edition => {
+            const newsletter = newsletters.find(n => n.id === edition.newsletterId);
+            return {
+              ...edition,
+              newsletterName: newsletter?.name || 'Unknown',
+              newsletterColor: newsletter?.primaryColor || '#3b82f6',
+            };
+          });
+        
+        return scheduledEditions;
+      }),
+
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {

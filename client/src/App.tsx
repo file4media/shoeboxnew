@@ -14,6 +14,7 @@ import Analytics from "./pages/Analytics";
 // import ArticleView from "./pages/ArticleView";
 import Articles from "./pages/Articles";
 import Authors from "./pages/Authors";
+import Calendar from "./pages/Calendar";
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/login"} component={Login} />
       <Route path={"/newsletters"} component={Newsletters} />
+      <Route path={"/calendar"} component={Calendar} />
       <Route path={"/newsletters/:id"} component={NewsletterDetail} />
       <Route path={"/newsletters/:newsletterId/editions/:editionId"} component={EditionEditor} />
       <Route path={"/newsletters/:newsletterId/articles"} component={Articles} />

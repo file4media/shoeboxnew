@@ -3,7 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Pencil, Trash2, Sparkles } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, Sparkles, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { CreateAuthorDialog } from "@/components/CreateAuthorDialog";
 import { EditAuthorDialog } from "@/components/EditAuthorDialog";
@@ -47,6 +47,14 @@ export default function Authors() {
 
   return (
     <div className="container py-8">
+      <Button
+        variant="ghost"
+        onClick={() => setLocation(`/newsletters/${id}`)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Newsletter
+      </Button>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Authors</h1>
